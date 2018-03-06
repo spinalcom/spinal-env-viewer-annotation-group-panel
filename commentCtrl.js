@@ -1,4 +1,4 @@
-angular.module('app.spinalcom')
+angular.module('app.spinalforge.plugin')
   .controller('commentCtrl', ["$scope", "messagePanelService", "authService", function ($scope, messagePanelService, authService) {
 
     let onChange = () => {

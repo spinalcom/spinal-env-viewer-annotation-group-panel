@@ -1,4 +1,4 @@
-angular.module('app.spinalcom')
+angular.module('app.spinalforge.plugin')
   .factory('messagePanelFactory', ["$rootScope", "$compile", "$templateCache", "$http",
     function ($rootScope, $compile, $templateCache, $http) {
       let load_template = (uri, name) => {
