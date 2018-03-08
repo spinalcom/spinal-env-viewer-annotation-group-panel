@@ -14,9 +14,13 @@
           label: "add theme",
           icon: "note_add"
         }];
+
         $scope.currentVisibleObj = [];
 
         $scope.themes = [];
+
+        $scope.currentTheme;
+        
         spinalModelDictionary.init().then((m) => {
           if (m) {
             if (m.groupAnnotationPlugin) {
@@ -42,6 +46,17 @@
             return;
           }
           promise.resolve(model);
+        }
+
+        function getFileSystem(model) {
+          return $q((resolve, reject) => {
+            if(FileSystem._objects[model._server_id] != null) {
+              resolve(FileSystem._objects[model._server_id])
+            } else {
+              console.log(model)
+              reject("error")
+            }
+          })
         }
 
         $scope.waitObjRdy = (model) => {
@@ -88,16 +103,17 @@
         };
 
         $scope.$on('colorpicker-closed', function (data1, data2) {
-          console.log(data1);
-          console.log(data2);
-          // update moedels via $scope.themes
+          
           for (var i = 0; i < $scope.themes.length; i++) {
             let note = $scope.themes[i];
             for (var j = 0; j < note.listModel.length; j++) {
               let annotation = note.listModel[j];
               let mod = FileSystem._objects[annotation._server_id];
+              
               if (mod) {
                 mod.color.set(annotation.color);
+              } else {
+                console.log("error colorpicker");
               }
             }
           }
@@ -120,6 +136,8 @@
         };
 
         $scope.renameNote = (note) => {
+          // let mod = FileSystem._objects[note._server_id];
+          
           $mdDialog.show($mdDialog.prompt()
               .title("Rename")
               .placeholder('Please enter the title')
@@ -128,14 +146,25 @@
               .required(true)
               .ok('Confirm').cancel('Cancel'))
             .then(function (result) {
-              let mod = FileSystem._objects[note._server_id];
-              if (mod) {
-                if (mod.title)
-                  mod.title.set(result);
-                else {
-                  mod.name.set(result);
-                }
-              }
+              getFileSystem(note)
+                .then((data) => {
+                  if(data.title) {
+                    data.title.set(result);
+                  } else {
+                    data.name.set(result);
+                  }
+                },() => {
+                  console.log("error")
+                })
+              // if (mod) {
+              //   if (mod.title)
+              //     mod.title.set(result);
+              //   else {
+              //     mod.name.set(result);
+              //   }
+              // } else {
+              //   console.log("mod == null");
+              // }
             }, () => {});
         };
 
@@ -148,6 +177,7 @@
         };
 
         $scope.addNoteInTheme = (theme) => {
+          // let mod = FileSystem._objects[theme._server_id];
           $mdDialog.show($mdDialog.prompt()
               .title("Add Note")
               .placeholder('Please enter the title')
@@ -158,24 +188,31 @@
               .cancel('Cancel')
             )
             .then(function (result) {
-              let mod = FileSystem._objects[theme._server_id];
+            
               var annotation = new NoteModel();
               annotation.title.set(result);
               annotation.color.set('#000000');
               annotation.owner.set($scope.user.id);
               annotation.username.set($scope.user.username);
-              if (mod) {
-                mod.listModel.push(annotation);
-              } else {
-                console.log("mod null");
-              }
+
+              getFileSystem(theme).then((data) => {
+                data.listModel.push(annotation);
+              },() => {
+                console.log("error");
+              })
+
+              // if (mod) {
+              //   mod.listModel.push(annotation);
+              // } else {
+              //   console.log("mod null");
+              // }
             }, () => {
               console.log("canceled");
             });
         };
 
         $scope.deleteNote = (theme, note = null) => {
-          console.log(note);
+   
           var dialog = $mdDialog.confirm()
             .ok("Delete !")
             .title('Do you want to remove it?')
@@ -186,10 +223,9 @@
             .then((result) => {
               if (note != null) {
                 for (var i = 0; i < $scope.themeListModel.length; i++) {
-                  var themeS = $scope.themeListModel[i];
-                  if (themeS._server_id == theme._server_id) {
-                    for (var j = 0; j < themeS.listModel.length; j++) {
-                      var annotation = themeS.listModel[j];
+                  if ($scope.themeListModel[i]._server_id == theme._server_id) {
+                    for (var j = 0; j < $scope.themeListModel[i].listModel.length; j++) {
+                      var annotation = $scope.themeListModel[i].listModel[j];
 
                       if (annotation._server_id == note._server_id) {
                         $scope.themeListModel[i].listModel.splice(j, 1);
@@ -201,8 +237,7 @@
                 }
               } else {
                 for (var _i = 0; _i < $scope.themeListModel.length; _i++) {
-                  var _themeS = $scope.themeListModel[_i];
-                  if (_themeS._server_id == theme._server_id) {
+                  if ($scope.themeListModel[_i]._server_id == theme._server_id) {
                     $scope.themeListModel.splice(_i, 1);
                     break;
                   }
@@ -211,9 +246,9 @@
             }, () => {});
         };
 
-
         $scope.addItemInNote = (annotation) => {
           var items = viewer.getSelection();
+
           if (items.length == 0) {
             alert('No model selected !');
             return;
@@ -222,48 +257,72 @@
           viewer.model.getBulkProperties(items, {
             propFilter: ['name']
           }, (models) => {
-            let mod = FileSystem._objects[annotation._server_id];
-            if (mod) {
+            getFileSystem(annotation)
+            .then((data) => {
               for (var i = 0; i < models.length; i++) {
-                mod.allObject.push(models[i]);
+                data.allObject.push(models[i]);
               }
+
               var toast = $mdToast.simple()
                 .content("Item added !")
                 .highlightAction(true)
                 .position('bottom right')
-                .parent("body");
+                .parent('body');
               $mdToast.show(toast);
-            }
+
+            },() => {
+              console.log("error");
+            })
           });
         };
 
-
         $scope.changeItemColor = (theme) => {
           var ids = [];
-          let mod = FileSystem._objects[theme._server_id];
+          // let mod = FileSystem._objects[theme._server_id];
 
-          if (mod) {
-            for (var i = 0; i < mod.allObject.length; i++) {
-              ids.push(mod.allObject[i]);
+          getFileSystem(theme).then((data) => {
+            for (var i = 0; i < data.allObject.length; i++) {
+              ids.push(data.allObject[i]);
             }
-            mod.display.set(true);
-            console.log(mod.color);
-            viewer.setColorMaterial(ids, theme.color, mod._server_id);
-          }
-        };
 
+            data.display.set(true);
+            viewer.setColorMaterial(ids,theme.color,data._server_id);
+
+          },() => {
+            console.log("error");
+          })
+
+          // if (mod) {
+          //   for (var i = 0; i < mod.allObject.length; i++) {
+          //     ids.push(mod.allObject[i]);
+          //   }
+          //   mod.display.set(true);
+          //   console.log(mod.color);
+          //   viewer.setColorMaterial(ids, theme.color, mod._server_id);
+          // }
+        };
 
         $scope.restoreColor = (theme) => {
           var ids = [];
-          let mod = FileSystem._objects[theme._server_id];
+          // let mod = FileSystem._objects[theme._server_id];
 
-          if (mod) {
-            for (var i = 0; i < mod.allObject.length; i++) {
-              ids.push(mod.allObject[i]);
+          getFileSystem(theme).then((data) => {
+            for(var i= 0; i < data.allObject.length;i++) {
+              ids.push(data.allObject[i]);
             }
-            mod.display.set(false);
-            viewer.restoreColorMaterial(ids, mod._server_id);
-          }
+            data.display.set(false)
+            viewer.restoreColorMaterial(ids,data._server_id);
+          },() => {
+            console.log("error");
+          })
+
+          // if (mod) {
+          //   for (var i = 0; i < mod.allObject.length; i++) {
+          //     ids.push(mod.allObject[i]);
+          //   }
+          //   mod.display.set(false);
+          //   viewer.restoreColorMaterial(ids, mod._server_id);
+          // }
         };
 
         $scope.commentNote = (theme) => {
@@ -274,7 +333,13 @@
           FilePanelService.hideShowPanel(theme);
         };
 
+        $scope.exportTheme = (theme) => {
+          
+        }
 
+        $scope.themeChanged = () => {
+          $scope.currentThemeSelected = FileSystem._objects[$scope.currentTheme];
+        }
 
         // changeAllItemsColor() {
         //   var objects = [];
