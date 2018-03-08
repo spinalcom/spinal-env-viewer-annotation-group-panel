@@ -34,36 +34,17 @@
           }
         });
 
-        function deferObjRdy(model, promise) {
-          if (!model._server_id || FileSystem._tmp_objects[model._server_id]) {
-            setTimeout(() => {
-              deferObjRdy(model, promise);
-            }, 200);
-            return;
-          }
-          promise.resolve(model);
-        }
-
-        $scope.waitObjRdy = (model) => {
-          let deferred = $q.defer();
-          deferObjRdy(model, deferred);
-          return deferred.promise;
-        };
-
         $scope.onModelChange = () => {
           let promiseLst = [];
           for (var i = 0; i < $scope.themeListModel.length; i++) {
             let note = $scope.themeListModel[i];
-            promiseLst.push($scope.waitObjRdy(note));
+            promiseLst.push(note.get_obj());
           }
           $q.all(promiseLst).then((res) => {
-            $scope.themes = [];
-            for (var i = 0; i < $scope.themeListModel.length; i++) {
-              let note = $scope.themeListModel[i];
-              let mod = note.get_obj();
-              mod._server_id = note._server_id;
-              $scope.themes.push(mod);
-              if ($scope.selectedNote && $scope.selectedNote._server_id == mod._server_id) {
+            console.log(res);
+            $scope.themes = res;
+            for (var i = 0; i < res.length; i++) {
+              if ($scope.selectedNote && $scope.selectedNote._server_id == res[i]._server_id) {
                 $scope.selectedNote = mod;
               }
             }
@@ -72,19 +53,19 @@
 
         $scope.addTheme = () => {
           $mdDialog.show($mdDialog.prompt()
-              .title("Add Theme")
-              .placeholder('Please enter the Name')
-              .ariaLabel('Add Theme')
-              .clickOutsideToClose(true)
-              .required(true)
-              .ok('Confirm').cancel('Cancel'))
+            .title("Add Theme")
+            .placeholder('Please enter the Name')
+            .ariaLabel('Add Theme')
+            .clickOutsideToClose(true)
+            .required(true)
+            .ok('Confirm').cancel('Cancel'))
             .then(function (result) {
               var newTheme = new ThemeModel();
               newTheme.name.set(result);
               newTheme.owner.set($scope.user.id);
               newTheme.username.set($scope.user.username);
               $scope.themeListModel.push(newTheme);
-            }, () => {});
+            }, () => { });
         };
 
         $scope.$on('colorpicker-closed', function (data1, data2) {
@@ -121,12 +102,12 @@
 
         $scope.renameNote = (note) => {
           $mdDialog.show($mdDialog.prompt()
-              .title("Rename")
-              .placeholder('Please enter the title')
-              .ariaLabel('Rename')
-              .clickOutsideToClose(true)
-              .required(true)
-              .ok('Confirm').cancel('Cancel'))
+            .title("Rename")
+            .placeholder('Please enter the title')
+            .ariaLabel('Rename')
+            .clickOutsideToClose(true)
+            .required(true)
+            .ok('Confirm').cancel('Cancel'))
             .then(function (result) {
               let mod = FileSystem._objects[note._server_id];
               if (mod) {
@@ -136,7 +117,7 @@
                   mod.name.set(result);
                 }
               }
-            }, () => {});
+            }, () => { });
         };
 
         $scope.ViewAllNotes = (theme) => {
@@ -149,14 +130,14 @@
 
         $scope.addNoteInTheme = (theme) => {
           $mdDialog.show($mdDialog.prompt()
-              .title("Add Note")
-              .placeholder('Please enter the title')
-              .ariaLabel('Add Note')
-              .clickOutsideToClose(true)
-              .required(true)
-              .ok('Confirm')
-              .cancel('Cancel')
-            )
+            .title("Add Note")
+            .placeholder('Please enter the title')
+            .ariaLabel('Add Note')
+            .clickOutsideToClose(true)
+            .required(true)
+            .ok('Confirm')
+            .cancel('Cancel')
+          )
             .then(function (result) {
               let mod = FileSystem._objects[theme._server_id];
               var annotation = new NoteModel();
@@ -208,7 +189,7 @@
                   }
                 }
               }
-            }, () => {});
+            }, () => { });
         };
 
 
