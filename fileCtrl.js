@@ -1,23 +1,57 @@
 angular.module('app.spinalforge.plugin')
-  .controller('fileCtrl', ["$scope", "$mdDialog", "FilePanelService", "authService",
-    function ($scope, $mdDialog, FilePanelService, authService) {
+  .controller('fileCtrl', ["$scope", "$mdDialog", "FilePanelService", "authService","$q",
+    function ($scope, $mdDialog, FilePanelService, authService , $q) {
+
+
+      function getFileSystem(model) {
+        return $q((resolve, reject) => {
+          if(FileSystem._objects[model._server_id] != null) {
+            resolve(FileSystem._objects[model._server_id])
+          } else {
+            console.log(model)
+            reject("error")
+          }
+        })
+      }
+
+      $scope.myClick = (mod) => {
+        console.log(mod)
+      }
+
       let onChange = () => {
         let obj = FileSystem._objects[$scope.files._server_id];
-        $scope.files = obj.get_obj();
+
+        obj.get_obj().then(function (res) {
+        $scope.files = res;
         $scope.$apply();
+        })
+
       };
 
       FilePanelService.register((annotation) => {
         if ($scope.files) {
-          let obj = FileSystem._objects[$scope.files._server_id];
-          if (obj)
-            obj.unbind(onChange);
+          // let obj = FileSystem._objects[$scope.files._server_id];
+          console.log("test ", $scope.files)
+          getFileSystem($scope.files)
+            .then((data) => {
+              data.unbind(onChange);
+            }, () => {
+              console.log("error !");
+            })
+ 
+            
         }
         if (annotation) {
+          console.log("tes ", annotation)
           $scope.files = annotation;
-          let obj = FileSystem._objects[$scope.files._server_id];
-          if (obj)
-            obj.bind(onChange);
+          getFileSystem($scope.files)
+            .then((data) => {
+              data.bind(onChange)
+            }, () => {
+              console.log("error !");
+            })
+          // if (obj)
+          //   obj.bind(onChange);
         }
       });
 

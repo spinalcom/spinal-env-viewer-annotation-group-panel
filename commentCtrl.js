@@ -15,14 +15,15 @@ angular.module('app.spinalforge.plugin')
 
 
     let onChange = () => {
-      getFileSystem($scope.messages)
-        .then((data) => {
-          $scope.messages = data.get_obj();
+      // getFileSystem($scope.messages)
+      //   .then((data) => {
+      //     $scope.messages = data.get_obj();
           
-        },() => {
-          console.log("error");
-        })
-        $scope.$apply();
+      //   },() => {
+      //     console.log("error");
+      //   })
+
+      $scope.$apply();
       
     };
 
@@ -38,7 +39,8 @@ angular.module('app.spinalforge.plugin')
 
       if (annotation) {
         $scope.messages = annotation;
-        getFileSystem($scope.messages)
+
+      getFileSystem($scope.messages)
           .then((data) => {
             data.bind(onChange);
           },() => {

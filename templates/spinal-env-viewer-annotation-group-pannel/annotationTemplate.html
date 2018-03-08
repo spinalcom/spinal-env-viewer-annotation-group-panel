@@ -135,6 +135,35 @@
 
       <md-list-item  ng-repeat="annotation in currentThemeSelected.listModel">
           <p>{{ annotation.title }}</p>
+
+          <md-button class="md-secondary i_btn" title="add items Selected" aria-label="addModelInNote"  ng-click="addItemInNote(annotation)">
+              <i class="fa fa-plus"></i>
+          </md-button>
+
+          <md-button class="md-secondary" colorpicker ng-model="annotation.color" class="color_pick" ng-attr-style="background : {{annotation.color}}" name="{{annotation._server_id}}" aria-label="Select Color">
+          </md-button>
+
+          <md-button class="md-secondary i_btn" title="color all item" aria-label="Toggle View Note" ng-click="ViewAllNotes(annotation)">
+              <i class="fa {{getViewIcon(annotation)}}"></i>
+          </md-button>
+
+          <md-button class="md-secondary i_btn" title="rename" aria-label="Rename Note" ng-click="renameNote(annotation)">
+              <i class="fa fa-pencil"></i>
+          </md-button>
+
+          <md-button class="md-secondary i_btn" title="delete" aria-label="Delete Note" ng-click="deleteNote(currentThemeSelected,annotation)">
+              <i class="fa fa-trash"></i>
+          </md-button>
+
+          <md-button class="md-secondary i_btn" title="add comment" aria-label="Comment Note" ng-click="commentNote(annotation)">
+              <i class="fa fa-comment"></i>
+          </md-button>
+
+          <md-button class="md-secondary i_btn" title="add file" aria-label="Send File" ng-click="sendFile(annotation)">
+              <i class="fa fa-file"></i>
+          </md-button>
+          
+
       </md-list-item>
     </div>
 
