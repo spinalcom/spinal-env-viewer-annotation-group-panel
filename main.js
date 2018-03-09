@@ -84,7 +84,7 @@
           _container.style.overflowY = 'auto';
           this.panel.container.appendChild(_container);
 
-          $(_container).html("<div ng-controller=\"annotationCtrl\" ng-cloak>" +
+          $(_container).html("<div ng-controller=\"annotationCtrl\" class=\"panelContent\" ng-cloak>" +
             $templateCache.get("annotationTemplate.html") + "</div>");
           $compile($(_container).contents())($rootScope);
         }
