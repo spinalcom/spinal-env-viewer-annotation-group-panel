@@ -14,16 +14,12 @@ angular.module('app.spinalforge.plugin')
         })
       }
 
-      $scope.myClick = (mod) => {
-        console.log(mod)
-      }
-
       let onChange = () => {
         let obj = FileSystem._objects[$scope.files._server_id];
 
         obj.get_obj().then(function (res) {
-        $scope.files = res;
-        $scope.$apply();
+          $scope.files = res;
+          $scope.$apply();
         })
 
       };
@@ -100,7 +96,18 @@ angular.module('app.spinalforge.plugin')
         let mod = FileSystem._objects[$scope.files._server_id];
         for (let i = 0; i < mod.files.length; i++) {
           if (mod.files[i]._server_id == file._server_id) {
-            selected.load($scope.downloadPtrFunc(selected));
+            
+            var dialog = $mdDialog.confirm()
+          .ok("Download")
+          .title('Do you want download ' + file.name + ' ?')
+          .cancel('Cancel')
+          .clickOutsideToClose(true);
+
+        $mdDialog.show(dialog)
+          .then((result) => {
+            file.load($scope.downloadPtrFunc(file));
+          }, function () {});
+
             break;
           }
         }

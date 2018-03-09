@@ -3,6 +3,18 @@
     .controller('annotationCtrl', ["$scope", "$rootScope", "$mdToast", "$mdDialog", "authService", "$compile", "$injector", "layout_uid", "spinalModelDictionary", "$q", "messagePanelService", "FilePanelService",
       function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, messagePanelService, FilePanelService) {
         var viewer = v;
+
+        function getFileSystem(model) {
+          return $q((resolve, reject) => {
+            if(FileSystem._objects[model._server_id] != null) {
+              resolve(FileSystem._objects[model._server_id])
+            } else {
+              console.log(model)
+              reject("error")
+            }
+          })
+        }
+
         $scope.user = authService.get_user();
         $scope.headerBtnClick = (btn) => {
           if (btn.label == "add theme") {
@@ -27,6 +39,7 @@
               m.groupAnnotationPlugin.load((mod) => {
                 $scope.themeListModel = mod;
                 $scope.themeListModel.bind($scope.onModelChange);
+                $scope.changeColorOnLoad(mod);
               });
             } else {
               $scope.themeListModel = new Lst();
@@ -39,15 +52,18 @@
         });
 
 
-        function getFileSystem(model) {
-          return $q((resolve, reject) => {
-            if(FileSystem._objects[model._server_id] != null) {
-              resolve(FileSystem._objects[model._server_id])
-            } else {
-              console.log(model)
-              reject("error")
+        $scope.changeColorOnLoad = (mod) => {
+          console.log("changeColorOnLoad called !")
+          for (var i = 0; i < mod.length; i++) {
+            var theme = mod[i];
+            for (var j = 0; j < theme.listModel.length; j++) {
+              var annotation = theme.listModel[j];
+              if(annotation.display.get() == true) {
+                $scope.changeItemColor(theme,annotation);
+                console.log("display true");
+              }
             }
-          })
+          }
         }
 
         $scope.onModelChange = () => {
@@ -62,9 +78,39 @@
               if ($scope.selectedNote && $scope.selectedNote._server_id == res[i]._server_id) {
                 $scope.selectedNote = mod;
               }
+              if ($scope.themes[i]._server_id == $scope.currentTheme){
+                $scope.currentThemeSelected = $scope.themes[i];
+                break;
+              }
+
             }
+
+            $scope.onDisplayChanged();
+            
           });
         };
+
+
+        $scope.onDisplayChanged = () => {
+          let obj = []
+          for (var i = 0; i < $scope.themes.length; i++) {
+            let theme = $scope.themes[i]
+            for (var j = 0; j < theme.listModel.length; j++) {
+              var annotation = theme.listModel[j];
+              if(annotation.display == true) {
+                $scope.changeItemColor(theme,annotation)
+              } else {
+                $scope.restoreColor(theme,annotation)
+              }
+            }
+          }
+
+
+
+
+
+          // old_display_obj = obj;
+        }
 
         $scope.addTheme = () => {
           $mdDialog.show($mdDialog.prompt()
@@ -85,20 +131,20 @@
 
         $scope.$on('colorpicker-closed', function (data1, data2) {
           
-          for (var i = 0; i < $scope.themes.length; i++) {
-            let note = $scope.themes[i];
-            for (var j = 0; j < note.listModel.length; j++) {
-              let annotation = note.listModel[j];
-              
+          console.log("currentThemeSelected",$scope.currentThemeSelected);
+
+          for (var i = 0; i < $scope.currentThemeSelected.listModel.length; i++) {
+            let annotation = $scope.currentThemeSelected.listModel[i];
+
               getFileSystem(annotation)
                 .then((data) => {
-                  data.color.set(annotation.color);
-                }, () => {
-                  console.log("error !");
+                  data.color.set(annotation.color)
+                },() => {
+                  console.log("error !")
                 })
-              
-            }
+                
           }
+          
         });
 
         $scope.selectedNote = null;
@@ -106,6 +152,7 @@
         $scope.selectedStyle = (note) => {
           // if (note.listModel) {
           // }
+
           return note === $scope.selectedNote ? "background-color: #4185f4" : '';
         };
 
@@ -148,12 +195,12 @@
             }, () => { });
         };
 
-        $scope.ViewAllNotes = (theme) => {
-          if (theme.display) {
-            $scope.restoreColor(theme);
-          } else {
-            $scope.changeItemColor(theme);
-          }
+        $scope.ViewAllNotes = (annotation) => {
+          
+          getFileSystem(annotation)
+            .then((data) => {
+              data.display.set(!annotation.display);
+            })
         };
 
         $scope.addNoteInTheme = (theme) => {
@@ -256,53 +303,37 @@
           });
         };
 
-        $scope.changeItemColor = (theme) => {
+        $scope.changeItemColor = (theme,annotation) => {
           var ids = [];
-          // let mod = FileSystem._objects[theme._server_id];
-
-          getFileSystem(theme).then((data) => {
+          
+          getFileSystem(annotation).then((data) => {
+            data.display.set(true);
+            
             for (var i = 0; i < data.allObject.length; i++) {
               ids.push(data.allObject[i]);
             }
 
-            data.display.set(true);
-            viewer.setColorMaterial(ids,theme.color,data._server_id);
+            viewer.setColorMaterial(ids,data.color.get(),data._server_id);
+            $scope.verifyTheme(theme);
 
           },() => {
             console.log("error");
           })
-
-          // if (mod) {
-          //   for (var i = 0; i < mod.allObject.length; i++) {
-          //     ids.push(mod.allObject[i]);
-          //   }
-          //   mod.display.set(true);
-          //   console.log(mod.color);
-          //   viewer.setColorMaterial(ids, theme.color, mod._server_id);
-          // }
         };
 
-        $scope.restoreColor = (theme) => {
+        $scope.restoreColor = (theme,annotation) => {
           var ids = [];
-          // let mod = FileSystem._objects[theme._server_id];
 
-          getFileSystem(theme).then((data) => {
+          getFileSystem(annotation).then((data) => {
+            data.display.set(false)
             for(var i= 0; i < data.allObject.length;i++) {
               ids.push(data.allObject[i]);
             }
-            data.display.set(false)
             viewer.restoreColorMaterial(ids,data._server_id);
+            $scope.verifyTheme(theme);
           },() => {
             console.log("error");
           })
-
-          // if (mod) {
-          //   for (var i = 0; i < mod.allObject.length; i++) {
-          //     ids.push(mod.allObject[i]);
-          //   }
-          //   mod.display.set(false);
-          //   viewer.restoreColorMaterial(ids, mod._server_id);
-          // }
         };
 
         $scope.commentNote = (theme) => {
@@ -313,49 +344,107 @@
           FilePanelService.hideShowPanel(theme);
         };
 
+        $scope.themeChanged = () => {
+          for (let index = 0; index < $scope.themes.length; index++) {
+            if ($scope.themes[index]._server_id == $scope.currentTheme){
+              $scope.currentThemeSelected = $scope.themes[index];
+              break;
+            }
+          }
+        }
+
         $scope.exportTheme = (theme) => {
           
         }
 
-        $scope.themeChanged = () => {
-          $scope.currentThemeSelected = FileSystem._objects[$scope.currentTheme];
+        $scope.getViewIconTheme = (theme) => {
+          return theme.viewAll ? "fa-eye-slash" : "fa-eye";
         }
 
-        // changeAllItemsColor() {
-        //   var objects = [];
-        //   var notes = this.model;
-        //   for (var i = 0; i < notes.length; i++) {
-        //     var ids = [];
-        //     var color;
-        //     for (var j = 0; j < notes[i].allObject.length; j++) {
-        //       ids.push(notes[i].allObject[j].dbId.get());
-        //     }
-        //     color = notes[i].color.get();
-        //     objects.push({
-        //       ids: ids,
-        //       color: color,
-        //       id: notes[i].id
-        //     });
-        //   }
-        //   this.viewer.colorAllMaterials(objects);
-        // }
+        $scope.viewOrHideAllNote = (theme) => {
+          if(theme.viewAll == true) {
+            $scope.restoreAllItemColor(theme);
+          } else {
+            $scope.changeAllItemsColor(theme);
+          }
+        }
 
-        // restoreAllItemsColor() {
-        //   var objects = [];
-        //   var notes = this.model;
-        //   for (var i = 0; i < notes.length; i++) {
-        //     var ids = [];
 
-        //     for (var j = 0; j < notes[i].allObject.length; j++) {
-        //       ids.push(notes[i].allObject[j].dbId.get());
-        //     }
-        //     objects.push({
-        //       ids: ids,
-        //       id: notes[i].id
-        //     });
-        //   }
-        //   this.viewer.restoreAllMaterialColor(objects);
-        // }
+        $scope.changeAllItemsColor = (theme) => {
+          var objects = [];
+          var ids,color;
+          getFileSystem(theme)
+            .then((data) => {
+              data.viewAll.set(true);
+              for (var i = 0; i < data.listModel.length; i++) {
+                data.listModel[i].display.set(true);
+                let annotation = data.listModel[i]
+                ids = [];
+                for (var j = 0; j < annotation.allObject.length; j++) {
+                  ids.push(annotation.allObject[j].dbId.get());
+                }
+                color = data.listModel[i].color.get();
+
+                objects.push({
+                  ids : ids,
+                  color : color,
+                  id : annotation._server_id
+                })
+              }
+
+              viewer.colorAllMaterials(objects);
+              
+            },() => {
+              console.log("error !")
+            })
+        }
+
+        $scope.restoreAllItemColor = (theme) => {
+          var objects = []
+          var ids;
+
+          getFileSystem(theme)
+            .then((data) => {
+              data.viewAll.set(false);
+              for (var i = 0; i < data.listModel.length; i++) {
+                data.listModel[i].display.set(false);
+                let annotation = data.listModel[i]
+                ids = [];
+                for (var j = 0; j < annotation.allObject.length; j++) {
+                  ids.push(annotation.allObject[j].dbId.get());
+                }
+                objects.push({
+                  ids : ids,
+                  id : annotation._server_id
+                })
+              }
+
+              viewer.restoreAllMaterialColor(objects);
+              
+            },() => {
+              console.log("error !")
+            })
+
+        }
+
+        $scope.verifyTheme = (theme) => {
+
+          getFileSystem(theme)
+            .then((data) => {
+              for (var i = 0; i < data.listModel.length; i++) {
+                let annotation = data.listModel[i];
+                if(annotation.display.get() == false) {
+                  data.viewAll.set(false);
+                  return;
+                }
+              }
+
+              data.viewAll.set(true);
+              
+            },()=>{
+              console.log("error !")
+            })
+        }
 
       }
     ]);

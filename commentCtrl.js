@@ -15,15 +15,12 @@ angular.module('app.spinalforge.plugin')
 
 
     let onChange = () => {
-      // getFileSystem($scope.messages)
-      //   .then((data) => {
-      //     $scope.messages = data.get_obj();
-          
-      //   },() => {
-      //     console.log("error");
-      //   })
+      let obj = FileSystem._objects[$scope.messages._server_id];
 
-      $scope.$apply();
+        obj.get_obj().then(function (res) {
+          $scope.messages = res;
+          $scope.$apply();
+        })
       
     };
 
