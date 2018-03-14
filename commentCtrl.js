@@ -1,23 +1,48 @@
 angular.module('app.spinalforge.plugin')
-  .controller('commentCtrl', ["$scope", "messagePanelService", "authService", function ($scope, messagePanelService, authService) {
+  .controller('commentCtrl', ["$scope", "messagePanelService", "authService","$mdDialog","$q", function ($scope, messagePanelService, authService, $mdDialog,$q) {
+
+
+    function getFileSystem(model) {
+      return $q((resolve, reject) => {
+        if(FileSystem._objects[model._server_id] != null) {
+          resolve(FileSystem._objects[model._server_id])
+        } else {
+          console.log(model)
+          reject("error")
+        }
+      })
+    }
+
 
     let onChange = () => {
       let obj = FileSystem._objects[$scope.messages._server_id];
-      $scope.messages = obj.get_obj();
-      $scope.$apply();
+
+        obj.get_obj().then(function (res) {
+          $scope.messages = res;
+          $scope.$apply();
+        })
+      
     };
 
     messagePanelService.register((annotation) => {
       if ($scope.messages) {
-        let obj = FileSystem._objects[$scope.messages._server_id];
-        if (obj)
-          obj.unbind(onChange);
+        getFileSystem($scope.messages)
+          .then((data) => {
+            data.unbind(onChange);
+          },() => {
+            console.log("error");
+          })
       }
+
       if (annotation) {
         $scope.messages = annotation;
-        let obj = FileSystem._objects[$scope.messages._server_id];
-        if (obj)
-          obj.bind(onChange);
+
+      getFileSystem($scope.messages)
+          .then((data) => {
+            data.bind(onChange);
+          },() => {
+            console.log("error");
+          }) 
       }
     });
 
@@ -26,31 +51,64 @@ angular.module('app.spinalforge.plugin')
     $scope.messageText = "";
 
     $scope.removeMessage = (message) => {
-      let mod = FileSystem._objects[$scope.messages._server_id];
 
-      if (mod) {
-        for (var i = 0; i < mod.notes.length; i++) {
-          if (mod.notes[i]._server_id == message._server_id) {
-            mod.notes.splice(i, 1);
-          }
-        }
-      }
+      var dialog = $mdDialog.confirm()
+            .ok("Delete !")
+            .title('Do you want to remove it?')
+            .cancel('Cancel')
+            .clickOutsideToClose(true);
+
+          $mdDialog.show(dialog)
+            .then((result) => {
+              getFileSystem($scope.messages)
+                .then((data) => {
+
+                  for (var i = 0; i < data.notes.length; i++) {
+                    if (data.notes[i]._server_id == message._server_id) {
+                      data.notes.splice(i, 1);
+                    }
+                  }
+                }, () => {
+                  console.log("error");
+                })
+
+                
+              
+            },() => {})
+
+      
 
     };
 
     $scope.SendMessage = () => {
-      let mod = FileSystem._objects[$scope.messages._server_id];
-      if ($scope.messageText != "" && $scope.messageText.trim() != "") {
-        var message = new MessageModel();
-        message.owner.set($scope.user.id);
-        message.username.set($scope.user.username);
-        message.message.set($scope.messageText);
+      // let mod = FileSystem._objects[$scope.messages._server_id];
 
-        if (mod) {
-          mod.notes.push(message);
-          $scope.messageText = "";
-        }
-      }
+      getFileSystem($scope.messages)
+        .then((data) => {
+          if ($scope.messageText != "" && $scope.messageText.trim() != "") {
+            var message = new MessageModel();
+            message.owner.set($scope.user.id);
+            message.username.set($scope.user.username);
+            message.message.set($scope.messageText);
+    
+            data.notes.push(message);
+            $scope.messageText = "";
+          }
+        }, () => {
+          console.log("error");
+        })
+
+      // if ($scope.messageText != "" && $scope.messageText.trim() != "") {
+      //   var message = new MessageModel();
+      //   message.owner.set($scope.user.id);
+      //   message.username.set($scope.user.username);
+      //   message.message.set($scope.messageText);
+
+      //   if (mod) {
+      //     mod.notes.push(message);
+      //     $scope.messageText = "";
+      //   }
+      // }
     };
 
   }]);

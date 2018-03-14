@@ -3,6 +3,18 @@
     .controller('annotationCtrl', ["$scope", "$rootScope", "$mdToast", "$mdDialog", "authService", "$compile", "$injector", "layout_uid", "spinalModelDictionary", "$q", "messagePanelService", "FilePanelService",
       function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, messagePanelService, FilePanelService) {
         var viewer = v;
+
+        function getFileSystem(model) {
+          return $q((resolve, reject) => {
+            if(FileSystem._objects[model._server_id] != null) {
+              resolve(FileSystem._objects[model._server_id])
+            } else {
+              console.log(model)
+              reject("error")
+            }
+          })
+        }
+
         $scope.user = authService.get_user();
         $scope.headerBtnClick = (btn) => {
           if (btn.label == "add theme") {
@@ -14,15 +26,20 @@
           label: "add theme",
           icon: "note_add"
         }];
+
         $scope.currentVisibleObj = [];
 
         $scope.themes = [];
+
+        $scope.currentTheme;
+        
         spinalModelDictionary.init().then((m) => {
           if (m) {
             if (m.groupAnnotationPlugin) {
               m.groupAnnotationPlugin.load((mod) => {
                 $scope.themeListModel = mod;
                 $scope.themeListModel.bind($scope.onModelChange);
+                $scope.changeColorOnLoad(mod);
               });
             } else {
               $scope.themeListModel = new Lst();
@@ -34,6 +51,21 @@
           }
         });
 
+
+        $scope.changeColorOnLoad = (mod) => {
+          console.log("changeColorOnLoad called !")
+          for (var i = 0; i < mod.length; i++) {
+            var theme = mod[i];
+            for (var j = 0; j < theme.listModel.length; j++) {
+              var annotation = theme.listModel[j];
+              if(annotation.display.get() == true) {
+                $scope.changeItemColor(theme,annotation);
+                console.log("display true");
+              }
+            }
+          }
+        }
+
         $scope.onModelChange = () => {
           let promiseLst = [];
           for (var i = 0; i < $scope.themeListModel.length; i++) {
@@ -41,15 +73,44 @@
             promiseLst.push(note.get_obj());
           }
           $q.all(promiseLst).then((res) => {
-            console.log(res);
             $scope.themes = res;
             for (var i = 0; i < res.length; i++) {
               if ($scope.selectedNote && $scope.selectedNote._server_id == res[i]._server_id) {
                 $scope.selectedNote = mod;
               }
+              if ($scope.themes[i]._server_id == $scope.currentTheme){
+                $scope.currentThemeSelected = $scope.themes[i];
+                break;
+              }
+
             }
+
+            $scope.onDisplayChanged();
+            
           });
         };
+
+
+        $scope.onDisplayChanged = () => {
+          let obj = []
+          for (var i = 0; i < $scope.themes.length; i++) {
+            let theme = $scope.themes[i]
+            for (var j = 0; j < theme.listModel.length; j++) {
+              var annotation = theme.listModel[j];
+              if(annotation.display == true) {
+                $scope.changeItemColor(theme,annotation)
+              } else {
+                $scope.restoreColor(theme,annotation)
+              }
+            }
+          }
+
+
+
+
+
+          // old_display_obj = obj;
+        }
 
         $scope.addTheme = () => {
           $mdDialog.show($mdDialog.prompt()
@@ -69,19 +130,21 @@
         };
 
         $scope.$on('colorpicker-closed', function (data1, data2) {
-          console.log(data1);
-          console.log(data2);
-          // update moedels via $scope.themes
-          for (var i = 0; i < $scope.themes.length; i++) {
-            let note = $scope.themes[i];
-            for (var j = 0; j < note.listModel.length; j++) {
-              let annotation = note.listModel[j];
-              let mod = FileSystem._objects[annotation._server_id];
-              if (mod) {
-                mod.color.set(annotation.color);
-              }
-            }
+          
+          console.log("currentThemeSelected",$scope.currentThemeSelected);
+
+          for (var i = 0; i < $scope.currentThemeSelected.listModel.length; i++) {
+            let annotation = $scope.currentThemeSelected.listModel[i];
+
+              getFileSystem(annotation)
+                .then((data) => {
+                  data.color.set(annotation.color)
+                },() => {
+                  console.log("error !")
+                })
+                
           }
+          
         });
 
         $scope.selectedNote = null;
@@ -89,6 +152,7 @@
         $scope.selectedStyle = (note) => {
           // if (note.listModel) {
           // }
+
           return note === $scope.selectedNote ? "background-color: #4185f4" : '';
         };
 
@@ -101,6 +165,8 @@
         };
 
         $scope.renameNote = (note) => {
+          // let mod = FileSystem._objects[note._server_id];
+          
           $mdDialog.show($mdDialog.prompt()
             .title("Rename")
             .placeholder('Please enter the title')
@@ -109,26 +175,36 @@
             .required(true)
             .ok('Confirm').cancel('Cancel'))
             .then(function (result) {
-              let mod = FileSystem._objects[note._server_id];
-              if (mod) {
-                if (mod.title)
-                  mod.title.set(result);
-                else {
-                  mod.name.set(result);
-                }
-              }
+
+              //let mod = FileSystem._objects[note._server_id];
+              getFileSystem(note)
+                .then((data) => {
+                  if(data.title) {
+                    data.title.set(result)
+                  } else {
+                    data.name.set(result);
+                  }
+                })
+              // if (mod) {
+              //   if (mod.title)
+              //     mod.title.set(result);
+              //   else {
+              //     mod.name.set(result);
+              //   }
+              // }
             }, () => { });
         };
 
-        $scope.ViewAllNotes = (theme) => {
-          if (theme.display) {
-            $scope.restoreColor(theme);
-          } else {
-            $scope.changeItemColor(theme);
-          }
+        $scope.ViewAllNotes = (annotation) => {
+          
+          getFileSystem(annotation)
+            .then((data) => {
+              data.display.set(!annotation.display);
+            })
         };
 
         $scope.addNoteInTheme = (theme) => {
+          // let mod = FileSystem._objects[theme._server_id];
           $mdDialog.show($mdDialog.prompt()
             .title("Add Note")
             .placeholder('Please enter the title')
@@ -139,24 +215,31 @@
             .cancel('Cancel')
           )
             .then(function (result) {
-              let mod = FileSystem._objects[theme._server_id];
+            
               var annotation = new NoteModel();
               annotation.title.set(result);
               annotation.color.set('#000000');
               annotation.owner.set($scope.user.id);
               annotation.username.set($scope.user.username);
-              if (mod) {
-                mod.listModel.push(annotation);
-              } else {
-                console.log("mod null");
-              }
+
+              getFileSystem(theme).then((data) => {
+                data.listModel.push(annotation);
+              },() => {
+                console.log("error");
+              })
+
+              // if (mod) {
+              //   mod.listModel.push(annotation);
+              // } else {
+              //   console.log("mod null");
+              // }
             }, () => {
               console.log("canceled");
             });
         };
 
         $scope.deleteNote = (theme, note = null) => {
-          console.log(note);
+   
           var dialog = $mdDialog.confirm()
             .ok("Delete !")
             .title('Do you want to remove it?')
@@ -167,10 +250,9 @@
             .then((result) => {
               if (note != null) {
                 for (var i = 0; i < $scope.themeListModel.length; i++) {
-                  var themeS = $scope.themeListModel[i];
-                  if (themeS._server_id == theme._server_id) {
-                    for (var j = 0; j < themeS.listModel.length; j++) {
-                      var annotation = themeS.listModel[j];
+                  if ($scope.themeListModel[i]._server_id == theme._server_id) {
+                    for (var j = 0; j < $scope.themeListModel[i].listModel.length; j++) {
+                      var annotation = $scope.themeListModel[i].listModel[j];
 
                       if (annotation._server_id == note._server_id) {
                         $scope.themeListModel[i].listModel.splice(j, 1);
@@ -182,8 +264,7 @@
                 }
               } else {
                 for (var _i = 0; _i < $scope.themeListModel.length; _i++) {
-                  var _themeS = $scope.themeListModel[_i];
-                  if (_themeS._server_id == theme._server_id) {
+                  if ($scope.themeListModel[_i]._server_id == theme._server_id) {
                     $scope.themeListModel.splice(_i, 1);
                     break;
                   }
@@ -192,9 +273,9 @@
             }, () => { });
         };
 
-
         $scope.addItemInNote = (annotation) => {
           var items = viewer.getSelection();
+
           if (items.length == 0) {
             alert('No model selected !');
             return;
@@ -203,48 +284,56 @@
           viewer.model.getBulkProperties(items, {
             propFilter: ['name']
           }, (models) => {
-            let mod = FileSystem._objects[annotation._server_id];
-            if (mod) {
+            getFileSystem(annotation)
+            .then((data) => {
               for (var i = 0; i < models.length; i++) {
-                mod.allObject.push(models[i]);
+                data.allObject.push(models[i]);
               }
+
               var toast = $mdToast.simple()
                 .content("Item added !")
                 .highlightAction(true)
                 .position('bottom right')
-                .parent("body");
+                .parent('body');
               $mdToast.show(toast);
-            }
+
+            },() => {
+              console.log("error");
+            })
           });
         };
 
-
-        $scope.changeItemColor = (theme) => {
+        $scope.changeItemColor = (theme,annotation) => {
           var ids = [];
-          let mod = FileSystem._objects[theme._server_id];
-
-          if (mod) {
-            for (var i = 0; i < mod.allObject.length; i++) {
-              ids.push(mod.allObject[i]);
+          
+          getFileSystem(annotation).then((data) => {
+            data.display.set(true);
+            
+            for (var i = 0; i < data.allObject.length; i++) {
+              ids.push(data.allObject[i]);
             }
-            mod.display.set(true);
-            console.log(mod.color);
-            viewer.setColorMaterial(ids, theme.color, mod._server_id);
-          }
+
+            viewer.setColorMaterial(ids,data.color.get(),data._server_id);
+            $scope.verifyTheme(theme);
+
+          },() => {
+            console.log("error");
+          })
         };
 
-
-        $scope.restoreColor = (theme) => {
+        $scope.restoreColor = (theme,annotation) => {
           var ids = [];
-          let mod = FileSystem._objects[theme._server_id];
 
-          if (mod) {
-            for (var i = 0; i < mod.allObject.length; i++) {
-              ids.push(mod.allObject[i]);
+          getFileSystem(annotation).then((data) => {
+            data.display.set(false)
+            for(var i= 0; i < data.allObject.length;i++) {
+              ids.push(data.allObject[i]);
             }
-            mod.display.set(false);
-            viewer.restoreColorMaterial(ids, mod._server_id);
-          }
+            viewer.restoreColorMaterial(ids,data._server_id);
+            $scope.verifyTheme(theme);
+          },() => {
+            console.log("error");
+          })
         };
 
         $scope.commentNote = (theme) => {
@@ -255,43 +344,107 @@
           FilePanelService.hideShowPanel(theme);
         };
 
+        $scope.themeChanged = () => {
+          for (let index = 0; index < $scope.themes.length; index++) {
+            if ($scope.themes[index]._server_id == $scope.currentTheme){
+              $scope.currentThemeSelected = $scope.themes[index];
+              break;
+            }
+          }
+        }
+
+        $scope.exportTheme = (theme) => {
+          
+        }
+
+        $scope.getViewIconTheme = (theme) => {
+          return theme.viewAll ? "fa-eye-slash" : "fa-eye";
+        }
+
+        $scope.viewOrHideAllNote = (theme) => {
+          if(theme.viewAll == true) {
+            $scope.restoreAllItemColor(theme);
+          } else {
+            $scope.changeAllItemsColor(theme);
+          }
+        }
 
 
-        // changeAllItemsColor() {
-        //   var objects = [];
-        //   var notes = this.model;
-        //   for (var i = 0; i < notes.length; i++) {
-        //     var ids = [];
-        //     var color;
-        //     for (var j = 0; j < notes[i].allObject.length; j++) {
-        //       ids.push(notes[i].allObject[j].dbId.get());
-        //     }
-        //     color = notes[i].color.get();
-        //     objects.push({
-        //       ids: ids,
-        //       color: color,
-        //       id: notes[i].id
-        //     });
-        //   }
-        //   this.viewer.colorAllMaterials(objects);
-        // }
+        $scope.changeAllItemsColor = (theme) => {
+          var objects = [];
+          var ids,color;
+          getFileSystem(theme)
+            .then((data) => {
+              data.viewAll.set(true);
+              for (var i = 0; i < data.listModel.length; i++) {
+                data.listModel[i].display.set(true);
+                let annotation = data.listModel[i]
+                ids = [];
+                for (var j = 0; j < annotation.allObject.length; j++) {
+                  ids.push(annotation.allObject[j].dbId.get());
+                }
+                color = data.listModel[i].color.get();
 
-        // restoreAllItemsColor() {
-        //   var objects = [];
-        //   var notes = this.model;
-        //   for (var i = 0; i < notes.length; i++) {
-        //     var ids = [];
+                objects.push({
+                  ids : ids,
+                  color : color,
+                  id : annotation._server_id
+                })
+              }
 
-        //     for (var j = 0; j < notes[i].allObject.length; j++) {
-        //       ids.push(notes[i].allObject[j].dbId.get());
-        //     }
-        //     objects.push({
-        //       ids: ids,
-        //       id: notes[i].id
-        //     });
-        //   }
-        //   this.viewer.restoreAllMaterialColor(objects);
-        // }
+              viewer.colorAllMaterials(objects);
+              
+            },() => {
+              console.log("error !")
+            })
+        }
+
+        $scope.restoreAllItemColor = (theme) => {
+          var objects = []
+          var ids;
+
+          getFileSystem(theme)
+            .then((data) => {
+              data.viewAll.set(false);
+              for (var i = 0; i < data.listModel.length; i++) {
+                data.listModel[i].display.set(false);
+                let annotation = data.listModel[i]
+                ids = [];
+                for (var j = 0; j < annotation.allObject.length; j++) {
+                  ids.push(annotation.allObject[j].dbId.get());
+                }
+                objects.push({
+                  ids : ids,
+                  id : annotation._server_id
+                })
+              }
+
+              viewer.restoreAllMaterialColor(objects);
+              
+            },() => {
+              console.log("error !")
+            })
+
+        }
+
+        $scope.verifyTheme = (theme) => {
+
+          getFileSystem(theme)
+            .then((data) => {
+              for (var i = 0; i < data.listModel.length; i++) {
+                let annotation = data.listModel[i];
+                if(annotation.display.get() == false) {
+                  data.viewAll.set(false);
+                  return;
+                }
+              }
+
+              data.viewAll.set(true);
+              
+            },()=>{
+              console.log("error !")
+            })
+        }
 
       }
     ]);

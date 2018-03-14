@@ -1,23 +1,53 @@
 angular.module('app.spinalforge.plugin')
-  .controller('fileCtrl', ["$scope", "$mdDialog", "FilePanelService", "authService",
-    function ($scope, $mdDialog, FilePanelService, authService) {
+  .controller('fileCtrl', ["$scope", "$mdDialog", "FilePanelService", "authService","$q",
+    function ($scope, $mdDialog, FilePanelService, authService , $q) {
+
+
+      function getFileSystem(model) {
+        return $q((resolve, reject) => {
+          if(FileSystem._objects[model._server_id] != null) {
+            resolve(FileSystem._objects[model._server_id])
+          } else {
+            console.log(model)
+            reject("error")
+          }
+        })
+      }
+
       let onChange = () => {
         let obj = FileSystem._objects[$scope.files._server_id];
-        $scope.files = obj.get_obj();
-        $scope.$apply();
+
+        obj.get_obj().then(function (res) {
+          $scope.files = res;
+          $scope.$apply();
+        })
+
       };
 
       FilePanelService.register((annotation) => {
         if ($scope.files) {
-          let obj = FileSystem._objects[$scope.files._server_id];
-          if (obj)
-            obj.unbind(onChange);
+          // let obj = FileSystem._objects[$scope.files._server_id];
+          console.log("test ", $scope.files)
+          getFileSystem($scope.files)
+            .then((data) => {
+              data.unbind(onChange);
+            }, () => {
+              console.log("error !");
+            })
+ 
+            
         }
         if (annotation) {
+          console.log("tes ", annotation)
           $scope.files = annotation;
-          let obj = FileSystem._objects[$scope.files._server_id];
-          if (obj)
-            obj.bind(onChange);
+          getFileSystem($scope.files)
+            .then((data) => {
+              data.bind(onChange)
+            }, () => {
+              console.log("error !");
+            })
+          // if (obj)
+          //   obj.bind(onChange);
         }
       });
 
@@ -66,7 +96,18 @@ angular.module('app.spinalforge.plugin')
         let mod = FileSystem._objects[$scope.files._server_id];
         for (let i = 0; i < mod.files.length; i++) {
           if (mod.files[i]._server_id == file._server_id) {
-            selected.load($scope.downloadPtrFunc(selected));
+            
+            var dialog = $mdDialog.confirm()
+          .ok("Download")
+          .title('Do you want download ' + file.name + ' ?')
+          .cancel('Cancel')
+          .clickOutsideToClose(true);
+
+        $mdDialog.show(dialog)
+          .then((result) => {
+            file.load($scope.downloadPtrFunc(file));
+          }, function () {});
+
             break;
           }
         }
