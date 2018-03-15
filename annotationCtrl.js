@@ -461,7 +461,9 @@
 
 
           if(absPath != "") {
-            // ngSpinalCore.load(absPath).then((m) => {
+            ngSpinalCore.load(absPath).then((m) => {
+              $scope.removeTheme(m,theme);
+              
               var themeDirectory = new Directory()
 
               for (var i = 0; i < theme.listModel.length; i++) {
@@ -471,15 +473,21 @@
                 themeDirectory.add_file(theme.listModel[i].title,annotationDirectory);
               }
               
-              ngSpinalCore.store(themeDirectory,absPath).then((m) => {
-                console.log("success !");
-              }, () => {
-                console.log("error !");
-              })
+              m.add_file(theme.name,themeDirectory);
 
-            // },()=> {
-            //   console.log("error !");
-            // })
+            },()=> {
+              console.log("error !");
+            })
+          }
+        }
+
+        $scope.removeTheme = (dossier,theme) => {
+          for (var i = 0; i < dossier.length; i++) {
+            if(dossier[i].name && dossier[i].name == theme.name) {
+              dossier.splice(i,1);
+              console.log("supprimé")
+              break;
+            }
           }
         }
 
