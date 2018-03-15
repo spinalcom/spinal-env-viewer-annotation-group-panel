@@ -1,1 +1,1 @@
-# spinal-env-viewer-annotation-group-pannel
+# spinal-env-viewer-annotation-group-panel

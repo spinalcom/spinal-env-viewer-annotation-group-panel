@@ -1,7 +1,7 @@
 {
-  "name": "spinal-env-viewer-annotation-group-pannel",
+  "name": "spinal-env-viewer-annotation-group-panel",
   "version": "1.0.0",
-  "description": "spinal-env-viewer-annotation-group-pannel",
+  "description": "spinal-env-viewer-annotation-group-panel",
   "main": "main.js",
   "dependencies": {},
   "devDependencies": {},

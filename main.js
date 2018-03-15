@@ -2,7 +2,7 @@
   let appSpinalforgePlugin = angular.module('app.spinalforge.plugin');
   appSpinalforgePlugin.run(["$rootScope", "$compile", "$templateCache", "$http", "spinalRegisterViewerPlugin",
     function ($rootScope, $compile, $templateCache, $http, spinalRegisterViewerPlugin) {
-      spinalRegisterViewerPlugin.register("PannelAnnotation");
+      spinalRegisterViewerPlugin.register("PanelAnnotation");
 
       let load_template = (uri, name) => {
         $http.get(uri).then((response) => {
@@ -12,17 +12,17 @@
         });
       };
       let toload = [{
-        uri: '../templates/spinal-env-viewer-annotation-group-pannel/annotationTemplate.html',
+        uri: '../templates/spinal-env-viewer-annotation-group-panel/annotationTemplate.html',
         name: 'annotationTemplate.html'
       }, {
-        uri: '../templates/spinal-env-viewer-annotation-group-pannel/commentTemplate.html',
+        uri: '../templates/spinal-env-viewer-annotation-group-panel/commentTemplate.html',
         name: 'commentTemplate.html'
       }];
       for (var i = 0; i < toload.length; i++) {
         load_template(toload[i].uri, toload[i].name);
       }
 
-      class PannelAnnotation {
+      class PanelAnnotation {
         constructor(viewer, options) {
           Autodesk.Viewing.Extension.call(this, viewer, options);
           this.viewer = viewer;
@@ -89,7 +89,7 @@
           $compile($(_container).contents())($rootScope);
         }
       } // end class
-      Autodesk.Viewing.theExtensionManager.registerExtension('PannelAnnotation', PannelAnnotation);
+      Autodesk.Viewing.theExtensionManager.registerExtension('PanelAnnotation', PanelAnnotation);
     } // end run
   ]);
 

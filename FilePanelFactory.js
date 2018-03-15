@@ -9,7 +9,7 @@ angular.module('app.spinalforge.plugin')
         });
       };
       let toload = [{
-        uri: '../templates/spinal-env-viewer-annotation-group-pannel/fileTemplate.html',
+        uri: '../templates/spinal-env-viewer-annotation-group-panel/fileTemplate.html',
         name: 'fileTemplate.html'
       }];
       for (var i = 0; i < toload.length; i++) {
