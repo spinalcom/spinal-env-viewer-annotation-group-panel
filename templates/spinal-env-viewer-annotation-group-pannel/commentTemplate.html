@@ -1,48 +1,143 @@
 
 <style>
 
-  .panelContent {
-    height: 100%;
-  }
-  
-  .text_div {
-    margin-bottom: 5px;
+  .messageContainer {
+      width: 95%;
+      height: 79%;
+      margin: auto;
+      overflow-y: auto;
   }
 
-  .messageContainer {
-    overflow-x: hidden;
+  .message_div {
+    width : 100%;
+    min-height: 20%;
+  }
+
+
+
+  .form_div {
+    padding-top: 15px;
+    max-width: 100%;
+    min-height: 15%;
+
+}
+
+.textarea_div {
+    width: 100%;
+    margin-bottom: 10px;
+    color: #000000;
+}
+
+.content {
+    width: 100%;
+    height: 100%;
+}
+
+.message_div {
+    width : 100%;
+    min-height: 20%;
+}
+
+.message_date {
+    width: 100%;
+    text-align: right;
+    height: 20px;
+    color : #7E8282;
+}
+
+._message {
+    width : 100%;
+    min-height: 10%;
+}
+
+.message_owner {
+    width: 15%;
+    height: 10%;
+    float: left;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 1em;
+    padding-top: 10px;
+
+}
+
+.message_content {
+    width: 80%;
+    min-height: 10%;
+    float: right;
+    padding: 7px;
+    border-radius: 20px;
+}
+
+  .close_div {
+      width: 100%;
+      height: 20px;
+      text-align: right;
+      font-size: 1em;
+      color: #fff;
+  }
+
+  .message_text {
+    width : 100%;
+    min-height: 10%;
+    text-align: justify;
+    word-wrap: break-word;
+  }
+
+  .user_message {
+      background: #5694f1 !important;
+  }
+
+  .notUserMessage {
+      background: #7e8282 !important;
+  }
+
+
+  .form_div {
+    padding-top: 15px;
+    width: 95%;
+    min-height: 15%;
+    margin: auto;
+  }
+
+
+  .formControl {
+    width: 100% !important;
   }
 
 </style>
 
 <div class="panelContent">
-<div class="messageContainer">
-  <div class="message_div" ng-repeat="message in messages.notes">
-    <div class="message_date">{{message.date | date:"dd/MM/yyyy"}}</div>
+  <div class="messageContainer">
+    <div class="message_div" ng-repeat="message in messages.notes">
+      <div class="message_date">{{message.date | date:"dd/MM/yyyy"}}</div>
 
-    <div class="_message">
-      <div class="message_owner">{{message.username}}</div>
-      <div class="message_content">
+      <div class="_message">
+        <div class="message_owner">{{message.username}}</div>
+        <div class="message_content" ng-class="{ user_message : isUserMessage(message.owner) , notUserMessage : !isUserMessage(message.owner)}">
 
-        <div class="close_div" ng-if="parseInt(messsage.owner) == parseInt(user.id)" ng-click="removeMessage(message)">
-          <span class="close">X</span>
+          <div class="close_div" ng-if="isUserMessage(message.owner)" ng-click="removeMessage(message)">
+            <span class="close">X</span>
+          </div>
+
+          <div class="message_text">{{message.message}}</div>
         </div>
-
-        <div class="message_text">{{message.message}}</div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="form_div">
-  <div class="text_div">
-    <textarea class="form-control" rows="2" placeholder="add text" ng-model="messageText"></textarea>
+  <div class="form_div">
+    <div class="textarea_div">
+      <textarea class="formControl" rows="2" placeholder="add text" ng-model="messageText"></textarea>
+    </div>
+
+    <div class="send_button_div">
+      <button class="btn" ng-click="SendMessage()">
+        <i class="fa fa-paper-plane"></i>
+        Send
+      </button>
+    </div>
+
   </div>
-
-  <div class="send_button_div">
-    <button class="btn btn-block" ng-click="SendMessage()">Send</button>
-  </div>
-
-</div>
 
 </div>

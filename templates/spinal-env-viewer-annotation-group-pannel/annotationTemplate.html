@@ -1,18 +1,20 @@
 <style>
 
-
-  .panelContent {
-    height: 100%;
-  }
-
   ._container {
     height: 100%;
     padding-top: 20px;
+    padding-bottom: 10px;
+    overflow: hidden !important;
   }
 
   .panelContent {
     width: 100%;
     height: 100%;
+  }
+
+
+  .theme_icon {
+    text-align: center;
   }
 
   .md-button {
@@ -21,12 +23,17 @@
   }
 
   .menu_btn i {
-    color : #000000;
+    color : #000000 !important;
+  }
+
+  .md-no-style.md-list-item-inner.md-ink-ripple {
+    padding: 0px !important;
   }
 
 </style>
 
 <md-content class="_container">
+  <button class="btn btn-block" ng-click="addTheme()">Add Theme</button>
   <md-input-container class="md-block" flex-gt-sm>
     <label>Theme Selected</label>
     <md-select ng-model="currentTheme" ng-change="themeChanged()">
@@ -68,7 +75,7 @@
         </div>
 
       <div ng-if="currentThemeSelected.listModel.length > 0">
-        <md-list-item  ng-repeat="annotation in currentThemeSelected.listModel">
+        <md-list-item class="_theme"  ng-repeat="annotation in currentThemeSelected.listModel">
             <p>
               <md-button class="i_btn" title="color all item" aria-label="Toggle View Note" ng-click="ViewAllNotes(annotation)">
                   <i class="fa {{getViewIcon(annotation)}}"></i> 
@@ -119,7 +126,6 @@
                         <span>upload File</span>
                     </md-button>
                 </md-menu-item>
-
               </md-menu-content>
             </md-menu>
             

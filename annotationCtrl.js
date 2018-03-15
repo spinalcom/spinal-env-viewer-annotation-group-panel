@@ -1,7 +1,7 @@
 (function () {
   angular.module('app.spinalforge.plugin')
-    .controller('annotationCtrl', ["$scope", "$rootScope", "$mdToast", "$mdDialog", "authService", "$compile", "$injector", "layout_uid", "spinalModelDictionary", "$q", "messagePanelService", "FilePanelService",
-      function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, messagePanelService, FilePanelService) {
+    .controller('annotationCtrl', ["$scope", "$rootScope", "$mdToast", "$mdDialog", "authService", "$compile", "$injector", "layout_uid", "spinalModelDictionary", "$q", "messagePanelService", "FilePanelService","$routeParams", "ngSpinalCore",
+      function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, messagePanelService, FilePanelService, $routeParams,ngSpinalCore) {
         var viewer = v;
 
         function getFileSystem(model) {
@@ -34,6 +34,7 @@
         $scope.currentTheme;
         
         spinalModelDictionary.init().then((m) => {
+          console.log(m.groupAnnotationPlugin)
           if (m) {
             if (m.groupAnnotationPlugin) {
               m.groupAnnotationPlugin.load((mod) => {
@@ -42,6 +43,7 @@
                 $scope.changeColorOnLoad(mod);
               });
             } else {
+              console.log("model n'existe pas")
               $scope.themeListModel = new Lst();
               m.add_attr({
                 groupAnnotationPlugin: new Ptr($scope.themeListModel)
@@ -353,10 +355,6 @@
           }
         }
 
-        $scope.exportTheme = (theme) => {
-          
-        }
-
         $scope.getViewIconTheme = (theme) => {
           return theme.viewAll ? "fa-eye-slash" : "fa-eye";
         }
@@ -444,6 +442,45 @@
             },()=>{
               console.log("error !")
             })
+        }
+
+        $scope.exportTheme = (theme) => {
+          let path = $routeParams.filepath;
+          let absPath = '';
+          var myPath;
+          
+          if (path) {
+            path = atob(path);
+            myPath = path.split("/")
+
+            for (var i = 1; i < myPath.length -1; i++) {
+              absPath = absPath + "/" + myPath[i]
+            }
+          }
+
+
+
+          if(absPath != "") {
+            // ngSpinalCore.load(absPath).then((m) => {
+              var themeDirectory = new Directory()
+
+              for (var i = 0; i < theme.listModel.length; i++) {
+                var annotationDirectory = new Directory();
+                var note = FileSystem._objects[theme.listModel[i]._server_id]
+                annotationDirectory.add_file("files",note.files);
+                themeDirectory.add_file(theme.listModel[i].title,annotationDirectory);
+              }
+              
+              ngSpinalCore.store(themeDirectory,absPath).then((m) => {
+                console.log("success !");
+              }, () => {
+                console.log("error !");
+              })
+
+            // },()=> {
+            //   console.log("error !");
+            // })
+          }
         }
 
       }

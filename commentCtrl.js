@@ -89,7 +89,7 @@ angular.module('app.spinalforge.plugin')
             var message = new MessageModel();
             message.owner.set($scope.user.id);
             message.username.set($scope.user.username);
-            message.message.set($scope.messageText);
+            message.message.set($scope.messageText.trim());
     
             data.notes.push(message);
             $scope.messageText = "";
@@ -110,5 +110,9 @@ angular.module('app.spinalforge.plugin')
       //   }
       // }
     };
+
+    $scope.isUserMessage = (messageId) => {
+      return messageId == $scope.user.id ? true : false;
+    } 
 
   }]);

@@ -26,8 +26,7 @@ angular.module('app.spinalforge.plugin')
 
       FilePanelService.register((annotation) => {
         if ($scope.files) {
-          // let obj = FileSystem._objects[$scope.files._server_id];
-          console.log("test ", $scope.files)
+
           getFileSystem($scope.files)
             .then((data) => {
               data.unbind(onChange);
@@ -46,8 +45,7 @@ angular.module('app.spinalforge.plugin')
             }, () => {
               console.log("error !");
             })
-          // if (obj)
-          //   obj.bind(onChange);
+
         }
       });
 
