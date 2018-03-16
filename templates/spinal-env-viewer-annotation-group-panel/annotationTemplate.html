@@ -35,6 +35,15 @@
     min-height: 20px !important;
   }
 
+  .themeIcon {
+    border : 1px solid white ; 
+    background : rgb(162, 221, 231); 
+    color : #000000;
+  }
+
+  .themeIconI i{
+    color : #000000 !important;
+  }
   
 
 </style>
@@ -81,25 +90,25 @@
     </md-list-item>
     
 
-    <md-list-item style="border : 1px solid white ; background : rgb(162, 221, 231); color : black">
+    <md-list-item class="themeIcon">
        <p>{{currentThemeSelected.name}}</p>
-        <md-button class="md-secondary i_btn" title="add annotation" aria-label="addAnnotation" ng-click="addNoteInTheme(currentThemeSelected)">
+        <md-button class="md-secondary i_btn themeIconI" title="add annotation" aria-label="addAnnotation" ng-click="addNoteInTheme(currentThemeSelected)">
             <i class="fa fa-plus"></i>
         </md-button>
   
-          <md-button class="md-secondary i_btn" title="view all item" aria-label="viewAllItem" ng-click="viewOrHideAllNote(currentThemeSelected)">
+          <md-button class="md-secondary i_btn themeIconI" title="view all item" aria-label="viewAllItem" ng-click="viewOrHideAllNote(currentThemeSelected)">
             <i class="fa {{getViewIconTheme(currentThemeSelected)}}"></i>
           </md-button>
   
-          <md-button class="md-secondary i_btn" title="rename" aria-label="rename" ng-click="renameNote(currentThemeSelected)">
+          <md-button class="md-secondary i_btn themeIconI" title="rename" aria-label="rename" ng-click="renameNote(currentThemeSelected)">
             <i class="fa fa-pencil"></i>
           </md-button>
   
-          <md-button class="md-secondary i_btn" title="delete" aria-label="delete" ng-click="deleteNote(currentThemeSelected)">
+          <md-button class="md-secondary i_btn themeIconI" title="delete" aria-label="delete" ng-click="deleteNote(currentThemeSelected)">
             <i class="fa fa-trash"></i>
           </md-button>
   
-          <md-button class="md-secondary i_btn" title="export" aria-label="export" ng-click="exportTheme(currentThemeSelected)">
+          <md-button class="md-secondary i_btn themeIconI" title="export" aria-label="export" ng-click="exportTheme(currentThemeSelected)">
             <i class="fa fa-upload"></i>
           </md-button>
     </md-list-item>
