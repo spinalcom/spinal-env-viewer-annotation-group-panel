@@ -8,7 +8,8 @@
 
   .panelContent {
     width: 100%;
-    height: calc(100% - 10px);
+    height: 100%;
+    overflow: hidden;
   }
 
 
@@ -40,30 +41,32 @@
 
 <md-content class="_container">
 
-  <md-list ng-if="!themeSelect">
+  <md-list ng-if="!themeSelect" style="height : 100%">
     <md-list-item>
         <button class="btn btn-block" ng-click="addTheme()">Add Theme</button>
     </md-list-item>
 
-    <md-list-item ng-repeat="theme in themes" ng-click="themeChanged(theme)">
-        <p> {{ theme.name }} </p>
+    <div style="height:calc(100% - 40px) ; overflow-y : auto">
+      <md-list-item ng-repeat="theme in themes" ng-click="themeChanged(theme)">
+          <p> {{ theme.name }} </p>
 
-        <md-button class="md-secondary i_btn" title="view all item" aria-label="viewAllItem" ng-click="viewOrHideAllNote(theme)">
-            <i class="fa {{getViewIconTheme(theme)}}"></i>
-        </md-button>
+          <md-button class="md-secondary i_btn" title="view all item" aria-label="viewAllItem" ng-click="viewOrHideAllNote(theme)">
+              <i class="fa {{getViewIconTheme(theme)}}"></i>
+          </md-button>
 
-        <md-button class="md-secondary i_btn" title="rename" aria-label="rename" ng-click="renameNote(theme)">
-          <i class="fa fa-pencil"></i>
-        </md-button>
+          <md-button class="md-secondary i_btn" title="rename" aria-label="rename" ng-click="renameNote(theme)">
+            <i class="fa fa-pencil"></i>
+          </md-button>
 
-        <md-button class="md-secondary i_btn" title="delete" aria-label="delete" ng-click="deleteNote(theme)">
-          <i class="fa fa-trash"></i>
-        </md-button>
+          <md-button class="md-secondary i_btn" title="delete" aria-label="delete" ng-click="deleteNote(theme)">
+            <i class="fa fa-trash"></i>
+          </md-button>
 
-        <md-button class="md-secondary i_btn" title="delete" aria-label="export" ng-click="exportTheme(theme)">
-          <i class="fa fa-upload"></i>
-        </md-button>
-    </md-list-item>
+          <md-button class="md-secondary i_btn" title="delete" aria-label="export" ng-click="exportTheme(theme)">
+            <i class="fa fa-upload"></i>
+          </md-button>
+      </md-list-item>
+  </div>
 
   </md-list>
 
