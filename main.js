@@ -1,4 +1,6 @@
+
 (function () {
+require("./annotationGroupModel")
   let appSpinalforgePlugin = angular.module('app.spinalforge.plugin');
   appSpinalforgePlugin.run(["$rootScope", "$compile", "$templateCache", "$http", "spinalRegisterViewerPlugin",
     function ($rootScope, $compile, $templateCache, $http, spinalRegisterViewerPlugin) {
@@ -17,6 +19,10 @@
       }, {
         uri: '../templates/spinal-env-viewer-annotation-group-panel/commentTemplate.html',
         name: 'commentTemplate.html'
+      },
+      {
+        uri: '../templates/spinal-env-viewer-annotation-group-panel/linkDialogTemplate.html',
+        name: 'linkDialogTemplate.html'
       }];
       for (var i = 0; i < toload.length; i++) {
         load_template(toload[i].uri, toload[i].name);
@@ -104,5 +110,8 @@
   require("./messagePanelService");
   require("./commentCtrl");
 
+  require("./linkCtrl");
+  require("./linkPanelFactory");
+  require("./linkPanelService");
 
 })();

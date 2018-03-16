@@ -1,0 +1,38 @@
+<style>
+    .buttonAdd {
+        margin-top: 20px;
+        border: 1px solid red;
+        padding: 0px;
+    }
+
+    .links_div {
+      width: 100%;
+      height: 455px;
+      overflow-x: hidden;
+      overflow-x: auto;
+    }
+</style>
+
+<div class="content">
+    <div class="buttonAdd col-xs-12">
+        <button type="button" class="btn btn-block btn-outline-primary" ng-click="addLink()">Add Link</button>
+    </div>
+    
+
+    <div class="links_div">
+        <md-list>
+            <md-list-item ng-repeat="link in annotation.links" >
+            <p class="noteTitle">{{link.label}}</p>
+    
+            <md-button class="i_btn" aria-label="add_item" ng-click="deleteLink(link)">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+            </md-button>
+    
+            <md-button class="i_btn" aria-label="add_item" ng-click="openLink(link)">
+                <i class="fa fa-link" aria-hidden="true"></i>
+            </md-button>
+            </md-list-item>
+        </md-list>
+    </div>
+
+</div>

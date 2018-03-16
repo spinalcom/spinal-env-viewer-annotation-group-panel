@@ -39,9 +39,10 @@
 }
 
 .message_date {
-    width: 100%;
+    width: 45%;
     text-align: right;
     height: 20px;
+    float: right;
     color : #7E8282;
 }
 
@@ -51,22 +52,19 @@
 }
 
 .message_owner {
-    width: 15%;
-    height: 10%;
+    width: 45%;
+    height: 20px;
     float: left;
-    text-align: center;
     text-transform: uppercase;
     font-size: 1em;
-    padding-top: 10px;
-
 }
 
 .message_content {
-    width: 80%;
+    width: 95%;
     min-height: 10%;
-    float: right;
     padding: 7px;
     border-radius: 20px;
+    margin: auto;
 }
 
   .close_div {
@@ -110,10 +108,12 @@
 <div class="panelContent">
   <div class="messageContainer">
     <div class="message_div" ng-repeat="message in messages.notes">
-      <div class="message_date">{{message.date | date:"dd/MM/yyyy"}}</div>
-
+      <div>
+          <div class="message_owner">{{message.username}}</div>
+          <div class="message_date">{{message.date | date : "dd/MM/y 'at' HH:mm:ss"}}</div>
+      </div>
+      
       <div class="_message">
-        <div class="message_owner">{{message.username}}</div>
         <div class="message_content" ng-class="{ user_message : isUserMessage(message.owner) , notUserMessage : !isUserMessage(message.owner)}">
 
           <div class="close_div" ng-if="isUserMessage(message.owner)" ng-click="removeMessage(message)">

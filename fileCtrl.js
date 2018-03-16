@@ -37,7 +37,6 @@ angular.module('app.spinalforge.plugin')
             
         }
         if (annotation) {
-          console.log("tes ", annotation)
           $scope.files = annotation;
           getFileSystem($scope.files)
             .then((data) => {
@@ -52,7 +51,7 @@ angular.module('app.spinalforge.plugin')
       $scope.user = authService.get_user();
 
       $scope.deleteFile = (file) => {
-        console.log(file);
+        
         var dialog = $mdDialog.confirm()
           .ok("Delete !")
           .title('Do you want to remove it?')

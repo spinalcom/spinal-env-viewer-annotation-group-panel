@@ -2,14 +2,13 @@
 
   ._container {
     height: 100%;
-    padding-top: 20px;
     padding-bottom: 10px;
     overflow: hidden !important;
   }
 
   .panelContent {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 10px);
   }
 
 
@@ -26,36 +25,64 @@
     color : #000000 !important;
   }
 
-  .md-no-style.md-list-item-inner.md-ink-ripple {
+  .noPadding {
     padding: 0px !important;
   }
+
+  .color_pick {
+    min-width: 30px !important;
+    min-height: 20px !important;
+  }
+
+  
 
 </style>
 
 <md-content class="_container">
-  <button class="btn btn-block" ng-click="addTheme()">Add Theme</button>
-  <md-input-container class="md-block" flex-gt-sm>
-    <label>Theme Selected</label>
-    <md-select ng-model="currentTheme" ng-change="themeChanged()">
-      <md-option ng-repeat="theme in themes" value="{{theme._server_id}}">
-        {{theme.name}}
-      </md-option>
-    </md-select>
-  </md-input-container>
 
-  <md-list>
-    <md-list-item ng-if="currentTheme == null">
-      <h5>No theme selected !</h5>
+  <md-list ng-if="!themeSelect">
+    <md-list-item>
+        <button class="btn btn-block" ng-click="addTheme()">Add Theme</button>
     </md-list-item>
 
-    <div ng-if="currentTheme != null">
+    <md-list-item ng-repeat="theme in themes" ng-click="themeChanged(theme)">
+        <p> {{ theme.name }} </p>
 
-      
+        <md-button class="md-secondary i_btn" title="view all item" aria-label="viewAllItem" ng-click="viewOrHideAllNote(theme)">
+            <i class="fa {{getViewIconTheme(theme)}}"></i>
+        </md-button>
 
-      <div class="theme_icon">
+        <md-button class="md-secondary i_btn" title="rename" aria-label="rename" ng-click="renameNote(theme)">
+          <i class="fa fa-pencil"></i>
+        </md-button>
+
+        <md-button class="md-secondary i_btn" title="delete" aria-label="delete" ng-click="deleteNote(theme)">
+          <i class="fa fa-trash"></i>
+        </md-button>
+
+        <md-button class="md-secondary i_btn" title="delete" aria-label="export" ng-click="exportTheme(theme)">
+          <i class="fa fa-upload"></i>
+        </md-button>
+    </md-list-item>
+
+  </md-list>
+
+ 
+  <md-list ng-if="themeSelect" style="height : 100%">
+    <md-list-item class="noPadding">
+        <md-button ng-click="goBack()">
+          <i class="fa fa-arrow-left"></i>
+          &nbsp;
+          back
+        </md-button>
+    </md-list-item>
+    
+
+    <md-list-item style="border : 1px solid white ; background : rgb(162, 221, 231)">
+       <p>{{currentThemeSelected.name}}</p>
         <md-button class="md-secondary i_btn" title="add annotation" aria-label="addAnnotation" ng-click="addNoteInTheme(currentThemeSelected)">
             <i class="fa fa-plus"></i>
-          </md-button>
+        </md-button>
   
           <md-button class="md-secondary i_btn" title="view all item" aria-label="viewAllItem" ng-click="viewOrHideAllNote(currentThemeSelected)">
             <i class="fa {{getViewIconTheme(currentThemeSelected)}}"></i>
@@ -72,70 +99,79 @@
           <md-button class="md-secondary i_btn" title="export" aria-label="export" ng-click="exportTheme(currentThemeSelected)">
             <i class="fa fa-upload"></i>
           </md-button>
-        </div>
+    </md-list-item>
 
-      <div ng-if="currentThemeSelected.listModel.length > 0">
-        <md-list-item class="_theme"  ng-repeat="annotation in currentThemeSelected.listModel">
-            <p>
-              <md-button class="i_btn" title="color all item" aria-label="Toggle View Note" ng-click="ViewAllNotes(annotation)">
-                  <i class="fa {{getViewIcon(annotation)}}"></i> 
-              </md-button>
-              {{ annotation.title }}
-            </p>
+      <br />
 
-            <md-button class="i_btn" title="add items Selected" aria-label="addModelInNote"  ng-click="addItemInNote(annotation)">
-                <i class="fa fa-plus"></i>
+    <div ng-if="currentThemeSelected.listModel.length > 0" style="height:calc(100% - 117px) ; overflow-y : auto">
+      <md-list-item class="_theme"  ng-repeat="annotation in currentThemeSelected.listModel">
+          <p>
+            {{ annotation.title }}
+          </p>
+
+          <md-button class="i_btn" title="add items Selected" aria-label="addModelInNote"  ng-click="addItemInNote(annotation)">
+              <i class="fa fa-plus"></i>
+          </md-button>
+
+          <md-button colorpicker ng-model="annotation.color" class="color_pick" ng-attr-style="background : {{annotation.color}}" name="{{annotation._server_id}}" aria-label="Select Color"></md-button>
+
+          <md-button class="i_btn" title="color all item" aria-label="Toggle View Note" ng-click="ViewAllNotes(annotation)">
+              <i class="fa {{getViewIcon(annotation)}}"></i> 
+          </md-button>
+
+          <md-menu>
+            <md-button aria-label="Open demo menu" class="md-icon-button i_btn" title="more" ng-click="$mdMenu.open($event)">
+                <i class="fa fa-ellipsis-v"></i>
             </md-button>
+            <md-menu-content width="2">
+              <md-menu-item>
+                  <md-button class="menu_btn" title="rename" aria-label="Rename Note" ng-click="renameNote(annotation)">
+                      <i class="fa fa-pencil"></i>
+                      &nbsp;
+                      <span>Rename</span>
+                  </md-button>
+              </md-menu-item>
 
-            <md-button colorpicker ng-model="annotation.color" class="color_pick" ng-attr-style="background : {{annotation.color}}" name="{{annotation._server_id}}" aria-label="Select Color">
-            </md-button>
+              <md-menu-item>
+                  <md-button class="menu_btn" title="delete" aria-label="Delete Note" ng-click="deleteNote(currentThemeSelected,annotation)">
+                      <i class="fa fa-trash"></i>
+                      &nbsp;
+                      <span>Remove</span>
+                  </md-button>
+              </md-menu-item>
 
-            <md-menu>
-              <md-button aria-label="Open demo menu" class="md-icon-button i_btn" title="more" ng-click="$mdMenu.open($event)">
-                  <i class="fa fa-ellipsis-v"></i>
-              </md-button>
-              <md-menu-content width="2">
-                <md-menu-item>
-                    <md-button class="menu_btn" title="rename" aria-label="Rename Note" ng-click="renameNote(annotation)">
-                        <i class="fa fa-pencil"></i>
-                        &nbsp;
-                        <span>Rename</span>
-                    </md-button>
-                </md-menu-item>
+              <md-menu-item>
+                  <md-button class="menu_btn" title="add comment" aria-label="Comment Note" ng-click="commentNote(annotation)">
+                      <i class="fa fa-comment"></i>
+                      &nbsp;
+                      <span>Comment</span>
+                  </md-button>
+              </md-menu-item>
 
-                <md-menu-item>
-                    <md-button class="menu_btn" title="delete" aria-label="Delete Note" ng-click="deleteNote(currentThemeSelected,annotation)">
-                        <i class="fa fa-trash"></i>
-                        &nbsp;
-                        <span>Remove</span>
-                    </md-button>
-                </md-menu-item>
+              <md-menu-item>
+                  <md-button class="menu_btn" title="add file" aria-label="Send File" ng-click="sendFile(annotation)">
+                      <i class="fa fa-file"></i>
+                      &nbsp;
+                      <span>upload File</span>
+                  </md-button>
+              </md-menu-item>
 
-                <md-menu-item>
-                    <md-button class="menu_btn" title="add comment" aria-label="Comment Note" ng-click="commentNote(annotation)">
-                        <i class="fa fa-comment"></i>
-                        &nbsp;
-                        <span>Comment</span>
-                    </md-button>
-                </md-menu-item>
+              <md-menu-item>
+                  <md-button class="menu_btn" title="add file" aria-label="Send File" ng-click="addLink(annotation)">
+                      <i class="fa fa-link"></i>
+                      &nbsp;
+                      <span>Link</span>
+                  </md-button>
+              </md-menu-item>
+            </md-menu-content>
 
-                <md-menu-item>
-                    <md-button class="menu_btn" title="add file" aria-label="Send File" ng-click="sendFile(annotation)">
-                        <i class="fa fa-file"></i>
-                        &nbsp;
-                        <span>upload File</span>
-                    </md-button>
-                </md-menu-item>
-              </md-menu-content>
-            </md-menu>
-            
-        </md-list-item>
-      </div>
+          </md-menu>
+          
+      </md-list-item>
+    </div>
 
-      <div ng-if="currentThemeSelected.listModel.length == 0">
-        <h4>No annotaion</h4>
-      </div>
-
+    <div ng-if="currentThemeSelected.listModel.length == 0">
+      <h4>No annotation</h4>
     </div>
 
   </md-list>

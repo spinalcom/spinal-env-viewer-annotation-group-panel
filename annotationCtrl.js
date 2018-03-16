@@ -1,8 +1,10 @@
 (function () {
   angular.module('app.spinalforge.plugin')
-    .controller('annotationCtrl', ["$scope", "$rootScope", "$mdToast", "$mdDialog", "authService", "$compile", "$injector", "layout_uid", "spinalModelDictionary", "$q", "messagePanelService", "FilePanelService","$routeParams", "ngSpinalCore",
-      function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, messagePanelService, FilePanelService, $routeParams,ngSpinalCore) {
+    .controller('annotationCtrl', ["$scope", "$rootScope", "$mdToast", "$mdDialog", "authService", "$compile", "$injector", "layout_uid", "spinalModelDictionary", "$q", "messagePanelService", "FilePanelService","$routeParams", "ngSpinalCore","linkPanelService",
+      function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, messagePanelService, FilePanelService, $routeParams,ngSpinalCore,linkPanelService) {
         var viewer = v;
+
+        
 
         function getFileSystem(model) {
           return $q((resolve, reject) => {
@@ -14,6 +16,8 @@
             }
           })
         }
+
+        $scope.themeSelect = false;
 
         $scope.user = authService.get_user();
         $scope.headerBtnClick = (btn) => {
@@ -74,7 +78,10 @@
             let note = $scope.themeListModel[i];
             promiseLst.push(note.get_obj());
           }
+
           $q.all(promiseLst).then((res) => {
+
+            console.log(res)
             $scope.themes = res;
             for (var i = 0; i < res.length; i++) {
               if ($scope.selectedNote && $scope.selectedNote._server_id == res[i]._server_id) {
@@ -346,13 +353,17 @@
           FilePanelService.hideShowPanel(theme);
         };
 
-        $scope.themeChanged = () => {
-          for (let index = 0; index < $scope.themes.length; index++) {
-            if ($scope.themes[index]._server_id == $scope.currentTheme){
-              $scope.currentThemeSelected = $scope.themes[index];
-              break;
-            }
-          }
+        $scope.themeChanged = (theme) => {
+          // for (let index = 0; index < $scope.themes.length; index++) {
+          //   if ($scope.themes[index]._server_id == $scope.currentTheme){
+          //     $scope.currentThemeSelected = $scope.themes[index];
+          //     break;
+          //   }
+          // }
+
+          $scope.currentThemeSelected = theme;
+          $scope.currentTheme = theme._server_id;
+          $scope.themeSelect = true;
         }
 
         $scope.getViewIconTheme = (theme) => {
@@ -475,6 +486,14 @@
               
               m.add_file(theme.name,themeDirectory);
 
+
+              var toast = $mdToast.simple()
+                .content("Success !")
+                .highlightAction(true)
+                .position('bottom right')
+                .parent('body');
+              $mdToast.show(toast);
+
             },()=> {
               console.log("error !");
             })
@@ -485,10 +504,19 @@
           for (var i = 0; i < dossier.length; i++) {
             if(dossier[i].name && dossier[i].name == theme.name) {
               dossier.splice(i,1);
-              console.log("supprimé")
               break;
             }
           }
+        }
+
+
+        $scope.addLink = (annotation) => {
+          linkPanelService.hideShowPanel(annotation);
+        }
+
+
+        $scope.goBack = () => {
+          $scope.themeSelect = false;
         }
 
       }
