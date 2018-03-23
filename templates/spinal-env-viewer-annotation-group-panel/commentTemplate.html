@@ -1,7 +1,7 @@
 
 <style>
 
-  .messageContainer {
+  ._messageContainer {
       width: 95%;
       height: 79%;
       margin: auto;
@@ -64,7 +64,7 @@
     font-weight: bold;
 }
 
-.message_content {
+.message_content_ {
     width: 95%;
     min-height: 10%;
     padding: 7px;
@@ -79,7 +79,7 @@
       padding-right: 5px;
   }
 
-  .message_text {
+  .message_text_ {
     width : 100%;
     min-height: 10%;
     text-align: justify;
@@ -115,7 +115,7 @@
 </style>
 
 <div class="panelContent">
-  <div class="messageContainer">
+  <div class="_messageContainer">
     <div class="message_div" ng-class="{ user_message : isUserMessage(message.owner) , notUserMessage : !isUserMessage(message.owner)}" ng-repeat="message in messages.notes">
       
       <div class="close_div" ng-if="isUserMessage(message.owner)" ng-click="removeMessage(message)">
@@ -128,8 +128,8 @@
       </div>
       
       <div class="_message">
-        <div class="message_content">
-          <div class="message_text">{{message.message}}</div>
+        <div class="message_content_">
+          <div class="message_text_">{{message.message}}</div>
         </div>
       </div>
     </div>

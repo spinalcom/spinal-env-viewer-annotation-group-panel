@@ -1,0 +1,18 @@
+
+<div class="files_div">
+    <md-list ng-if="annotation.allObject.length > 0">
+        <md-list-item ng-repeat="obj in annotation.allObject" >
+            <p class="noteTitle">{{obj.name}}</p>
+
+            <md-button class="i_btn" aria-label="add_item" ng-click="deleteObject(obj.dbId)">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+            </md-button>
+        </md-list-item>
+    </md-list>
+
+    <md-list ng-if="annotation.allObject.length == 0">
+        <md-list-item>
+            No item inside
+        </md-list-item>
+    </md-list>
+</div>

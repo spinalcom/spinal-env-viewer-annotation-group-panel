@@ -1,9 +1,31 @@
 (function () {
   angular.module('app.spinalforge.plugin')
-    .controller('annotationCtrl', ["$scope", "$rootScope", "$mdToast", "$mdDialog", "authService", "$compile", "$injector", "layout_uid", "spinalModelDictionary", "$q", "messagePanelService", "FilePanelService","$routeParams", "ngSpinalCore","linkPanelService",
-      function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, messagePanelService, FilePanelService, $routeParams,ngSpinalCore,linkPanelService) {
+    .controller('annotationCtrl', ["$scope", "$rootScope", "$mdToast", "$mdDialog", "authService", "$compile", "$injector", "layout_uid", "spinalModelDictionary", "$q", "messagePanelService", "FilePanelService","$routeParams", "ngSpinalCore","linkPanelService","itemPanelService",
+      function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, messagePanelService, FilePanelService, $routeParams,ngSpinalCore,linkPanelService,itemPanelService) {
         var viewer = v;
+        $scope.searchValue = "";
+        viewer.registerContextMenuCallback('rightClickMenu', (menu, status) => {
+          menu.push({
+            title: 'Search Item',
+            target: () => {
+              var items = viewer.getSelection();
 
+              if (items.length == 1) {
+                $scope.searchValue = items[0];
+                var input = document.getElementById("searchInput");
+                input.value = $scope.searchValue;
+                input.focus();
+                // var list = document.getElementById("allList");
+
+                // this.getContainer(items[0], (data) => {
+                //   this.changeContainer(list, data);
+                // });
+              } else
+                alert("you must select 1 item");
+            }
+          })
+        });
+        
         
 
         function getFileSystem(model) {
@@ -363,6 +385,7 @@
 
           $scope.currentThemeSelected = theme;
           $scope.currentTheme = theme._server_id;
+          $scope.searchValue = "";
           $scope.themeSelect = true;
         }
 
@@ -517,6 +540,11 @@
 
         $scope.goBack = () => {
           $scope.themeSelect = false;
+          $scope.searchValue = "";
+        }
+
+        $scope.ViewAnnotationItem = (annotation) => {
+          itemPanelService.hideShowPanel(annotation);
         }
 
       }

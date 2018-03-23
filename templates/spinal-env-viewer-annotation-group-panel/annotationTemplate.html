@@ -51,12 +51,18 @@
 <md-content class="_container">
 
   <md-list ng-if="!themeSelect" style="height : 100%">
+      
     <md-list-item>
         <button class="btn btn-block" ng-click="addTheme()">Add Theme</button>
     </md-list-item>
 
+    <md-input-container md-no-float class="md-block">
+        <md-icon><i class="fa fa-search"></i></md-icon>
+        <input id="searchInput" ng-model="searchValue" placeholder="Theme name or item dbId">
+    </md-input-container>
+
     <div style="height:calc(100% - 40px) ; overflow-y : auto">
-      <md-list-item ng-repeat="theme in themes" ng-click="themeChanged(theme)">
+      <md-list-item ng-repeat="theme in themes | searchFilter:searchValue" ng-click="themeChanged(theme)">
           <p> {{ theme.name }} </p>
 
           <md-button class="md-secondary i_btn" title="view all item" aria-label="viewAllItem" ng-click="viewOrHideAllNote(theme)">
@@ -71,7 +77,7 @@
             <i class="fa fa-trash"></i>
           </md-button>
 
-          <md-button class="md-secondary i_btn" title="delete" aria-label="export" ng-click="exportTheme(theme)">
+          <md-button class="md-secondary i_btn" title="export" aria-label="export" ng-click="exportTheme(theme)">
             <i class="fa fa-upload"></i>
           </md-button>
       </md-list-item>
@@ -88,6 +94,11 @@
           back
         </md-button>
     </md-list-item>
+
+    <md-input-container md-no-float class="md-block">
+        <md-icon><i class="fa fa-search"></i></md-icon>
+        <input id="searchInput" ng-model="searchValue" placeholder="Annotation name or item dbId">
+    </md-input-container>
     
 
     <md-list-item class="themeIcon">
@@ -116,7 +127,7 @@
       <br />
 
     <div ng-if="currentThemeSelected.listModel.length > 0" style="height:calc(100% - 117px) ; overflow-y : auto">
-      <md-list-item class="_theme"  ng-repeat="annotation in currentThemeSelected.listModel">
+      <md-list-item class="_theme"  ng-repeat="annotation in currentThemeSelected.listModel | searchFilter:searchValue">
           <p>
             {{ annotation.title }}
           </p>
@@ -129,6 +140,10 @@
 
           <md-button class="i_btn" title="color all item" aria-label="Toggle View Note" ng-click="ViewAllNotes(annotation)">
               <i class="fa {{getViewIcon(annotation)}}"></i> 
+          </md-button>
+
+          <md-button class="i_btn" title="See all item" aria-label="Toggle View Note" ng-click="ViewAnnotationItem(annotation)">
+              <i class="fa fa-puzzle-piece"></i>
           </md-button>
 
           <md-menu>

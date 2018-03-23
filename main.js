@@ -99,6 +99,7 @@ require("./annotationGroupModel")
     } // end run
   ]);
 
+  require("./filter")
   require("./annotationCtrl");
 
   require("./FilePanelFactory");
@@ -113,5 +114,9 @@ require("./annotationGroupModel")
   require("./linkCtrl");
   require("./linkPanelFactory");
   require("./linkPanelService");
+
+  require("./itemCtrl");
+  require("./itemPanelFactory");
+  require("./itemPanelService");
 
 })();

@@ -16,12 +16,12 @@ angular.module('app.spinalforge.plugin')
                 if (!this.panel.isVisible()) {
                     currentNote = note;
                     this.panel.setVisible(true);
-                    this.panel.setTitle(note.title);
+                    this.panel.setTitle("Link | " + note.title);
                 } else if (this.panel.isVisible() && note._server_id == currentNote._server_id) {
                     this.panel.setVisible(false);
                 } else {
                     currentNote = note;
-                    this.panel.setTitle(note.title);
+                    this.panel.setTitle("Link | " + note.title);
                 }
 
                 if (myCallback)
