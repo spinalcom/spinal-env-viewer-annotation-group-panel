@@ -90,6 +90,8 @@
               console.log(angular.element(evt.srcElement));
           }
 
-
+          $scope.hideShowList = (name) => {
+              $("section." + name).css(display);
+          }
     }])
 })();
