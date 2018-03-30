@@ -4,6 +4,7 @@
       function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, messagePanelService, FilePanelService, $routeParams,ngSpinalCore,linkPanelService,itemPanelService) {
         var viewer = v;
         $scope.searchValue = "";
+        
         viewer.registerContextMenuCallback('rightClickMenu', (menu, status) => {
           menu.push({
             title: 'Search Item',

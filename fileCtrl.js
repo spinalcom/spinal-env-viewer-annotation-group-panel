@@ -125,5 +125,14 @@ angular.module('app.spinalforge.plugin')
         }
       };
 
+
+      $scope.$on('downloadFile',function(event,params){
+        console.log("download",params);
+      })
+
+      $scope.$on('deleteFile',function(event,params){
+        console.log("delete",params)
+      })
+
     }
   ]);

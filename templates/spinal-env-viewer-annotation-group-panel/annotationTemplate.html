@@ -53,7 +53,13 @@
   <md-list ng-if="!themeSelect" style="height : 100%">
       
     <md-list-item>
-        <button class="btn btn-block" ng-click="addTheme()">Add Theme</button>
+        <!-- <button class="btn btn-block" ng-click="addTheme()">Add Theme</button> -->
+        
+        <md-button ng-repeat="btn in headerBtn" class="md-fab" aria-label="btn.label" style="height: 40px; width: 40px; padding:0;"
+          ng-click="headerBtnClick(btn)">
+          <md-tooltip>{{btn.label}}</md-tooltip>
+          <ng-md-icon icon="{{btn.icon}}" style="fill:white; height: 24px;"></ng-md-icon>
+        </md-button>
     </md-list-item>
 
     <md-input-container md-no-float class="md-block">

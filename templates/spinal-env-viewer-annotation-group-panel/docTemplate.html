@@ -1,0 +1,200 @@
+<style>
+
+    ._myPanel {
+        width: 100%;
+        height: 100%;
+        font-size: 14px;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    section.files {
+        width: 100%;
+        min-height: 100px;
+    }
+
+    section.files > div.title {
+        width: 100%;
+        padding-left: 5px;
+    }
+
+    section.files > div.title:hover, .annotation_section h5:hover , section.links > div.title:hover{
+        background: #A0C1DF;
+    }
+
+
+    section.links {
+        width: 100%;
+        min-height: 100px;
+    }
+
+    section.links {
+        width: 100%;
+        min-height: 100px;
+    }
+
+    .annotation_section {
+        width: 350px;
+        padding-left: 20px;
+    }
+
+    
+
+    .listItem_ {
+        padding-left: 15px;
+    }
+
+    
+
+
+</style>
+
+<div class="_myPanel" ng-if="themes.length > 0">
+    <h4>
+        Files
+    </h4>
+    <hr/>
+
+        
+    <div class="list" ng-repeat="theme in themes">
+        <section class="files">
+            
+            <div id="$index" class="title" ng-click="closeOpenList($event)">
+                <i id="$index" class="fa fa-caret-down"></i>
+                &nbsp;
+                <span id="$index">{{theme.name}}</span>
+            </div>
+
+            <div id="$index" class="annotation_section" ng-if="theme.listModel.length > 0" ng-repeat="annotation in theme.listModel">
+                <h5 id="$index" ng-click="closeOpenList($event)">
+                    <i class="fa fa-caret-down"></i>
+                    &nbsp;
+                    <span id="$index">{{annotation.title}}</span>
+                </h5>
+                
+                <md-list id="$index" class="listItem_">
+                    <md-list-item ng-if="annotation.files.length > 0" ng-repeat="file in annotation.files" >
+                        <p class="noteTitle">{{file.name}}</p>
+                
+                        <md-button class="i_btn" aria-label="add_item" ng-click="sendEvent('deleteFile',annotation)">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </md-button>
+                
+                        <md-button class="i_btn" aria-label="add_item" ng-click="sendEvent('downloadFile',annotation)">
+                            <i class="fa fa-download" aria-hidden="true"></i>
+                        </md-button>
+                    </md-list-item>
+
+                    <md-list-item ng-if="annotation.files.length == 0">
+                        No File
+                    </md-list-item>
+
+                </md-list>
+            </div>
+
+            <div id="$index" class="annotation_section" ng-if="theme.listModel.length == 0">
+                <md-list class="listItem_">
+                    <md-list-item>
+                        No annotation Created
+                    </md-list-item>
+                </md-list>
+            </div>
+        </section>
+    </div>
+
+
+    <hr/>
+    <h4>
+        Links
+    </h4>
+    <hr/>
+
+    <div class="list" ng-repeat="theme in themes">
+        <section class="links">
+            <div id="$index" class="title" ng-click="closeOpenList($event)">
+                <i class="fa fa-caret-down"></i>
+                &nbsp;
+                <span>{{theme.name}}</span>
+            </div>
+
+            <div class="annotation_section" ng-if="theme.listModel.length > 0" ng-repeat="annotation in theme.listModel">
+                <h5 id="$index" ng-click="closeOpenList($event)">
+                    <i class="fa fa-caret-down"></i>
+                    &nbsp;
+                    <span>{{annotation.title}}</span>
+                </h5>
+                
+                <md-list id="$index" class="listItem_">
+                    <md-list-item ng-if="annotation.links.length > 0" ng-repeat="link in annotation.links" >
+                        <p class="noteTitle">{{link.label}}</p>
+                
+                        <md-button class="i_btn" aria-label="add_item" ng-click="sendEvent('deleteLink',annotation)">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </md-button>
+                
+                        <md-button class="i_btn" aria-label="add_item" ng-click="sendEvent('openLink',annotation)">
+                            <i class="fa fa-link" aria-hidden="true"></i>
+                        </md-button>
+                    </md-list-item>
+
+                    <md-list-item ng-if="annotation.links.length == 0">
+                        No Link
+                    </md-list-item>
+
+                </md-list>
+            </div>
+
+            <div id="$index" class="annotation_section" ng-if="theme.listModel.length == 0">
+                <md-list class="listItem_">
+                    <md-list-item>
+                        No annotation Created
+                    </md-list-item>
+                </md-list>
+            </div>
+
+        </section>
+    </div>
+
+
+
+    <hr/>
+    <h4>
+        Comments
+    </h4>
+    <hr/>
+
+    <div class="list" ng-repeat="theme in themes">
+        <section class="comments">
+            
+            <div id="$index" class="title" ng-click="closeOpenList($event)">
+                <i id="$index" class="fa fa-caret-down"></i>
+                &nbsp;
+                <span id="$index">{{theme.name}}</span>
+            </div>
+
+            <div id="$index" class="annotation_section" ng-if="theme.listModel.length > 0" ng-repeat="annotation in theme.listModel">
+                <md-list class="listItem_">
+                    <md-list-item>
+                        <p class="noteTitle">{{annotation.title}}</p>
+                
+                        <md-button class="i_btn" aria-label="add_item" ng-click="openMessage(annotation)">
+                            <i class="fa fa-comment" aria-hidden="true"></i>
+                        </md-button>
+                    </md-list-item>
+                </md-list>
+            </div>
+
+            <div id="$index" class="annotation_section" ng-if="theme.listModel.length == 0">
+                <md-list class="listItem_">
+                    <md-list-item>
+                        No annotation Created
+                    </md-list-item>
+                </md-list>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="_myPanel" ng-if="themes.length == 0">
+    No Reference
+</div>

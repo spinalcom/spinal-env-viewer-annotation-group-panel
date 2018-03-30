@@ -23,7 +23,12 @@ require("./annotationGroupModel")
       {
         uri: '../templates/spinal-env-viewer-annotation-group-panel/linkDialogTemplate.html',
         name: 'linkDialogTemplate.html'
+      },
+      {
+        uri: '../templates/spinal-env-viewer-annotation-group-panel/docTemplate.html',
+        name: 'docTemplate.html'
       }];
+      
       for (var i = 0; i < toload.length; i++) {
         load_template(toload[i].uri, toload[i].name);
       }
@@ -33,6 +38,7 @@ require("./annotationGroupModel")
           Autodesk.Viewing.Extension.call(this, viewer, options);
           this.viewer = viewer;
           this.panel = null;
+          this.docPanel;
         }
 
         load() {
@@ -74,24 +80,46 @@ require("./annotationGroupModel")
           button1.addClass('fa-2x');
           button1.setToolTip('Annotation');
 
+
+          var docTitle = 'Doc';
+          this.docPanel = new PanelClass(this.viewer, docTitle);
+          var button2 = new Autodesk.Viewing.UI.Button(docTitle);
+
+          button2.onClick = (e) => {
+            if(!this.docPanel.isVisible()) {
+              this.docPanel.setVisible(true);
+            } else {
+              this.docPanel.setVisible(false);
+            }
+          }
+
+          button2.addClass('fa');
+          button2.addClass('fa-cogs');
+          button2.addClass('fa-2x');
+          button2.setToolTip('Documentation');
+
+
           this.subToolbar = this.viewer.toolbar.getControl("my-Annotation");
           if (!this.subToolbar) {
             this.subToolbar = new Autodesk.Viewing.UI.ControlGroup('my-Annotation');
             this.viewer.toolbar.addControl(this.subToolbar);
           }
           this.subToolbar.addControl(button1);
-          this.initialize();
+          this.subToolbar.addControl(button2);
+          this.initialize(this.panel,"annotationCtrl","annotationTemplate");
+          this.initialize(this.docPanel,"docCtrl","docTemplate");
         }
 
-        initialize() {
+        initialize(argPanel,argController,argTemplate) {
 
           var _container = document.createElement('div');
           _container.style.height = "calc(100% - 45px)";
           _container.style.overflowY = 'auto';
-          this.panel.container.appendChild(_container);
 
-          $(_container).html("<div ng-controller=\"annotationCtrl\" class=\"panelContent\" ng-cloak>" +
-            $templateCache.get("annotationTemplate.html") + "</div>");
+          argPanel.container.appendChild(_container);
+
+          $(_container).html("<div ng-controller=" + argController + " class=\"panelContent\" ng-cloak>" +
+          $templateCache.get(argTemplate + ".html") + "</div>");
           $compile($(_container).contents())($rootScope);
         }
       } // end class
@@ -101,6 +129,8 @@ require("./annotationGroupModel")
 
   require("./filter")
   require("./annotationCtrl");
+
+  require("./docCtrl");
 
   require("./FilePanelFactory");
   require("./FilePanelService");
