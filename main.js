@@ -130,8 +130,6 @@ require("./annotationGroupModel")
   require("./filter")
   require("./annotationCtrl");
 
-  require("./docCtrl");
-
   require("./FilePanelFactory");
   require("./FilePanelService");
   require("./fileCtrl");
@@ -148,5 +146,8 @@ require("./annotationGroupModel")
   require("./itemCtrl");
   require("./itemPanelFactory");
   require("./itemPanelService");
+
+  require("./docCtrl");
+  require("./docPanelService");
 
 })();

@@ -1,7 +1,7 @@
-(function () {
+// (function () {
     angular.module('app.spinalforge.plugin')
-      .controller('docCtrl', ["$scope", "$rootScope", "$mdToast", "$mdDialog", "authService", "$compile", "$injector", "layout_uid", "spinalModelDictionary", "$q","$routeParams", "ngSpinalCore","messagePanelService",
-        function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, $routeParams,ngSpinalCore,messagePanelService) {
+      .controller('docCtrl', ["$scope", "$rootScope", "$mdToast", "$mdDialog", "authService", "$compile", "$injector", "layout_uid", "spinalModelDictionary", "$q","$routeParams", "ngSpinalCore","messagePanelService","FilePanelService","docPanelService",
+        function ($scope, $rootScope, $mdToast, $mdDialog, authService, $compile, $injector, layout_uid, spinalModelDictionary, $q, $routeParams,ngSpinalCore,messagePanelService,FilePanelService,docPanelService) {
           var viewer = v;
 
 
@@ -36,14 +36,32 @@
           };
 
 
-          $scope.sendEvent = (eventName,annotation) => {
-              console.log(eventName);
-              $scope.$emit('deleteFile',{annotation : annotation});
+          $scope.sendEvent = (eventName,annotation,other) => {
+                switch (eventName) {
+                  case "deletefile":
+                    docPanelService.deleteFile(annotation,other);
+                    break;
+
+                  case "downloadfile":
+                    docPanelService.downloadFile(annotation,other);
+                    break;
+
+                  case "deletelink":
+                    docPanelService.deleteLink(annotation,other);
+                    break;
+                    
+                  case "openlink":
+                    docPanelService.openLink(annotation);
+                    break;
+                    
+                }    
+
           }
 
           $scope.openMessage = (annotation) => {
             messagePanelService.hideShowPanel(annotation);
           }
+
 
           viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, function(){
             var ids = viewer.getSelection();
@@ -86,12 +104,38 @@
 
           });
 
-          $scope.closeOpenList = (evt) => {
-              console.log(angular.element(evt.srcElement));
+          
+          $scope.closeOpenList = (name,theme,annotation = null) => {
+            var div,i;
+
+            if(annotation == null) {
+              div = $("#" + name + theme + 'div');
+              i = $("i#" + name + theme);
+            } else {
+              div = $("#" + name + theme + annotation);
+              i = $("i#i" + name + theme + annotation);
+
+            }
+
+            if(div.css('display') != 'block') {
+              div.css('display','block');
+              i.attr('class','fa fa-caret-down')
+            } else {
+              i.attr('class','fa fa-caret-right ')
+              div.css('display','none');
+            }
+          }
+            
+          
+          $scope.hideShowList = (name) => {
+            var display = $("section." + name).css('display');
+
+            if(display != 'block') {
+              $("section." + name).css('display','block');
+            } else {
+              $("section." + name).css('display','none');
+            }
           }
 
-          $scope.hideShowList = (name) => {
-              $("section." + name).css(display);
-          }
     }])
-})();
+// })();

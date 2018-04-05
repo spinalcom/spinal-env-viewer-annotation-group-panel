@@ -1,8 +1,8 @@
 
 
 angular.module('app.spinalforge.plugin')
-    .controller("linkCtrl",["$scope","$mdDialog","authService","$q","linkPanelService","$templateCache",
-      function($scope,$mdDialog,authService,$q,linkPanelService,$templateCache){
+    .controller("linkCtrl",["$scope","$mdDialog","authService","$q","linkPanelService","$templateCache","docPanelService",
+      function($scope,$mdDialog,authService,$q,linkPanelService,$templateCache,docPanelService){
           function getFileSystem(model) {
               return $q((resolve, reject) => {
                 if(FileSystem._objects[model._server_id] != null) {
@@ -84,26 +84,29 @@ angular.module('app.spinalforge.plugin')
           }
 
           $scope.deleteLink = (link) => {
-            var dialog = $mdDialog.confirm()
-            .ok("Delete !")
-            .title('Do you want to remove it?')
-            .cancel('Cancel')
-            .clickOutsideToClose(true);
 
-            $mdDialog.show(dialog)
-              .then((result) => {
-                let mod = FileSystem._objects[$scope.annotation._server_id];
-                if (mod) {
-                  for (var i = 0; i < mod.links.length; i++) {
-                    if (mod.links[i]._server_id == link._server_id) {
-                      mod.links.splice(i, 1);
-                    } else {
-                      console.log(mod.links[i]._server_id);
-                      console.log(link._server_id);
-                    }
-                  }
-                } else console.log("mod null");
-              }, function () {});
+            docPanelService.deleteLink($scope.annotation,link);
+
+            // var dialog = $mdDialog.confirm()
+            // .ok("Delete !")
+            // .title('Do you want to remove it?')
+            // .cancel('Cancel')
+            // .clickOutsideToClose(true);
+
+            // $mdDialog.show(dialog)
+            //   .then((result) => {
+            //     let mod = FileSystem._objects[$scope.annotation._server_id];
+            //     if (mod) {
+            //       for (var i = 0; i < mod.links.length; i++) {
+            //         if (mod.links[i]._server_id == link._server_id) {
+            //           mod.links.splice(i, 1);
+            //         } else {
+            //           console.log(mod.links[i]._server_id);
+            //           console.log(link._server_id);
+            //         }
+            //       }
+            //     } else console.log("mod null");
+            //   }, function () {});
           }
 
       }])
@@ -145,4 +148,14 @@ angular.module('app.spinalforge.plugin')
           var params = {label : $scope.label, link : $scope.link}
           $mdDialog.hide(params);
         }
+
+
+        $scope.$on("openlink",function(event,args) {
+          console.log("download",args);
+        })
+  
+        $scope.$on('deletelink',function(event,args) {
+          console.log("delete",args);
+        })
+
       }
