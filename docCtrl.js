@@ -62,7 +62,6 @@
             messagePanelService.hideShowPanel(annotation);
           }
 
-
           viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, function(){
             var ids = viewer.getSelection();
             var objecTemp;

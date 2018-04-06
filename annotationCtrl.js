@@ -27,6 +27,14 @@
           })
         });
         
+        function ObjectExist(obj,listObj) {
+          for (var i = 0; i < listObj.length; i++) {
+            if(listObj[i].dbId == obj.dbId) {
+              return true;
+            }
+          }
+          return false;
+        }
         
 
         function getFileSystem(model) {
@@ -103,8 +111,7 @@
           }
 
           $q.all(promiseLst).then((res) => {
-
-            console.log(res)
+            
             $scope.themes = res;
             for (var i = 0; i < res.length; i++) {
               if ($scope.selectedNote && $scope.selectedNote._server_id == res[i]._server_id) {
@@ -319,7 +326,20 @@
             getFileSystem(annotation)
             .then((data) => {
               for (var i = 0; i < models.length; i++) {
-                data.allObject.push(models[i]);
+                viewer.model.getInstanceTree().enumNodeChildren(models[i].dbId,(child) => {
+                  if(viewer.model.getInstanceTree().getChildCount(child) == 0) {
+                    viewer.model.getBulkProperties([child],{
+                      propFilter : ['name']
+                    },(otherModels) => {
+                      for (var k = 0; k < otherModels.length; k++) {
+                        if(!ObjectExist(otherModels[k],data.allObject)) {
+                          data.allObject.push(otherModels[k]);
+                        }
+                      }
+                    })
+                  }
+                },true)
+                
               }
 
               var toast = $mdToast.simple()

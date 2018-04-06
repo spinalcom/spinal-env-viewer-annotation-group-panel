@@ -1,6 +1,6 @@
 angular.module('app.spinalforge.plugin')
-  .controller('itemCtrl', ["$scope", "$mdDialog", "itemPanelService", "authService","$q",
-    function ($scope, $mdDialog, itemPanelService, authService , $q) {
+  .controller('itemCtrl', ["$scope", "$mdDialog", "itemPanelService", "authService","$q","messagePanelService","linkPanelService","FilePanelService",
+    function ($scope, $mdDialog, itemPanelService, authService , $q,messagePanelService,linkPanelService,FilePanelService) {
 
 
       function getFileSystem(model) {
@@ -56,20 +56,22 @@ angular.module('app.spinalforge.plugin')
         .cancel('Cancel')
         .clickOutsideToClose(true);
 
-      $mdDialog.show(dialog)
-        .then((result) => {
-          let mod = FileSystem._objects[$scope.annotation._server_id];
-          if (mod) {
-            for (var i = 0; i < mod.allObject.length; i++) {
-              if (mod.allObject[i].dbId == id) {
-                mod.allObject.splice(i, 1);
-              } else {
-                console.log(mod.files[i]._server_id);
-                console.log(file._server_id);
+        $mdDialog.show(dialog)
+          .then((result) => {
+            let mod = FileSystem._objects[$scope.annotation._server_id];
+
+            if (mod) {
+
+              console.log(mod);
+              console.log(id)
+
+              for (var i = 0; i < mod.allObject.length; i++) {
+                if (mod.allObject[i].dbId == id) {
+                  mod.allObject.splice(i, 1);
+                }
               }
-            }
-          } else console.log("mod null");
-        }, function () {});
+            } else console.log("mod null");
+          }, function () {});
       }
 
 }])
