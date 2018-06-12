@@ -96,6 +96,7 @@ require("./annotationGroupModel")
 
           button2.addClass('fa');
           button2.addClass('fa-cogs');
+          button1.addClass('spinalColorButton');
           button2.addClass('fa-2x');
           button2.setToolTip(docTitle);
 
