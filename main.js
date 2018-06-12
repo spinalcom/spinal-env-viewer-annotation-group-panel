@@ -63,7 +63,7 @@ require("./annotationGroupModel")
         }
 
         createUI() {
-          var title = 'Annotation';
+          var title = 'SpinalBIM Collaborator - Annotation';
           this.panel = new PanelClass(this.viewer, title);
           var button1 = new Autodesk.Viewing.UI.Button('Annotation');
 
@@ -78,10 +78,10 @@ require("./annotationGroupModel")
           button1.addClass('fa');
           button1.addClass('fa-pencil');
           button1.addClass('fa-2x');
-          button1.setToolTip('Annotation');
+          button1.setToolTip(title);
 
 
-          var docTitle = 'Doc';
+          var docTitle = 'SpinalBIM Collaborator - Documents';
           this.docPanel = new PanelClass(this.viewer, docTitle);
           var button2 = new Autodesk.Viewing.UI.Button(docTitle);
 
@@ -96,7 +96,7 @@ require("./annotationGroupModel")
           button2.addClass('fa');
           button2.addClass('fa-cogs');
           button2.addClass('fa-2x');
-          button2.setToolTip('Documentation');
+          button2.setToolTip(docTitle);
 
 
           this.subToolbar = this.viewer.toolbar.getControl("my-Annotation");
