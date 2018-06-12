@@ -77,6 +77,7 @@ require("./annotationGroupModel")
 
           button1.addClass('fa');
           button1.addClass('fa-pencil');
+          button1.addClass('spinalColorButton');
           button1.addClass('fa-2x');
           button1.setToolTip(title);
 
